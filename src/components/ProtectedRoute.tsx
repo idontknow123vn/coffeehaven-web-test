@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ('employee' | 'manager')[];
+  allowedRoles?: string[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
@@ -15,7 +15,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
 
   if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
     // Redirect to appropriate dashboard based on role
-    return <Navigate to={userRole === 'manager' ? '/manager-dashboard' : '/employee-dashboard'} replace />;
+    return <Navigate to={userRole === 'Branch_Manager' ? '/manager-dashboard' : '/employee-dashboard'} replace />;
   }
 
   return <>{children}</>;

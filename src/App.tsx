@@ -25,7 +25,7 @@ function App() {
                     <Route
                         path="/manager-dashboard"
                         element={
-                            <ProtectedRoute allowedRoles={['manager']}>
+                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
                                 <div className="flex">
                                     <Sidebar />
                                     <div className="flex-1 p-6">
@@ -38,7 +38,7 @@ function App() {
                     <Route
                         path="/branches"
                         element={
-                            <ProtectedRoute allowedRoles={['manager']}>
+                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
                                 <div className="flex">
                                     <Sidebar />
                                     <BranchesPage />
@@ -49,7 +49,7 @@ function App() {
                     <Route
                         path="/employees"
                         element={
-                            <ProtectedRoute allowedRoles={['manager']}>
+                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
                                 <div className="flex">
                                     <Sidebar />
                                     <EmployeesPage />
@@ -62,7 +62,7 @@ function App() {
                     <Route
                         path="/employee-dashboard"
                         element={
-                            <ProtectedRoute allowedRoles={['employee']}>
+                            <ProtectedRoute allowedRoles={['Counter_Staff', 'Delivery_Staff']}>
                                 <Staff />
                             </ProtectedRoute>
                         }
@@ -70,7 +70,7 @@ function App() {
                     <Route
                         path="/orders"
                         element={
-                            <ProtectedRoute allowedRoles={['employee']}>
+                            <ProtectedRoute allowedRoles={['Branch_Manager', 'Counter_Staff', 'Delivery_Staff']}>
                                 <div className="flex">
                                     <Sidebar />
                                     <OrdersPage />
@@ -81,7 +81,7 @@ function App() {
                     <Route
                         path="/menu"
                         element={
-                            <ProtectedRoute allowedRoles={['employee', 'manager']}>
+                            <ProtectedRoute allowedRoles={["Branch_Manager", "Counter_Staff"]}>
                                 <div className="flex">
                                     <Sidebar />
                                     <MenuPage />
