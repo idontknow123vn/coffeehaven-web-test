@@ -1,7 +1,28 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { getEmployeesByBranch } from "../services/manager";
 
 const EmployeesPage: React.FC = () => {
       const [employeeFilter, setEmployeeFilter] = useState<string>('Toàn bộ nhân viên');
+      const [employees, setEmployees] = useState<any[]>([]);
+      const {id: branchId} = useAuth();
+
+      useEffect(() => {
+        // Fetch employees data based on the selected filter
+        // This is a placeholder for actual data fetching logic
+        const fetchEmployees = async () => {
+          try {
+            if (branchId) {
+              const response = await getEmployeesByBranch(branchId);
+              setEmployees(response.data.data);
+              console.log("Employees data:", response.data);
+            }
+          } catch (error) {
+            console.error("Error fetching employees:", error);
+          }
+        }
+        fetchEmployees();
+      }, []);
 
       const employeesData = [
         { name: 'Nguyễn Văn A', role: 'Nhân viên tại quầy', phone: '0332065084', orders: 32, status: 'Đang làm' },
@@ -37,18 +58,18 @@ const EmployeesPage: React.FC = () => {
               <tr className="bg-gray-200">
                 <th className="p-2 text-left">Tên nhân viên</th>
                 <th className="p-2 text-left">Vai trò</th>
-                <th className="p-2 text-left">Số điện thoại</th>
+                <th className="p-2 text-left">Email</th>
                 <th className="p-2 text-left">Số đơn</th>
                 <th className="p-2 text-left">Trạng thái</th>
                 <th className="p-2 text-left"></th>
               </tr>
             </thead>
             <tbody>
-              {employeesData.map((employee, index) => (
+              {employees.map((employee, index) => (
                 <tr key={index} className="border-b">
                   <td className="p-2">{employee.name}</td>
                   <td className="p-2">{employee.role}</td>
-                  <td className="p-2">{employee.phone}</td>
+                  <td className="p-2">{employee.email}</td>
                   <td className="p-2">{employee.orders}</td>
                   <td className="p-2">
                     <span className={employee.status === 'Đang làm' ? 'text-green-500' : 'text-red-500'}>

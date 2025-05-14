@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Product from '../components/Product';
-import { products } from '../data/products';
 import logo from '../assets/logo.svg';
 import { MdShoppingCart, MdPerson, MdRestaurantMenu, MdVisibility, MdDelete } from 'react-icons/md';
 import { BsCalendarCheck } from 'react-icons/bs';
+import { getMenuItemsByBranch } from '../services/menu-items';
+import { useAuth } from '../contexts/AuthContext';
 
 interface OrderItem {
   id: number;
@@ -21,9 +22,17 @@ interface Invoice {
   status: 'pending' | 'processing' | 'completed';
 }
 
+interface MenuItem {
+  id: number;
+  name: string;
+  price: number;
+  img: string;
+  category: 'coffee' | 'snack' | 'juice' | 'tea';
+}
+
 const Staff: React.FC = () => {
   const [order, setOrder] = useState<OrderItem[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<'coffee' | 'snack' | 'juice' | 'tea'>('coffee');
+  const [selectedCategory, setSelectedCategory] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [activeScreen, setActiveScreen] = useState<'order' | 'invoice' | 'schedule' | 'account'>('order');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -31,7 +40,11 @@ const Staff: React.FC = () => {
   const [showDetailModal, setShowDetailModal] = useState<boolean>(false);
   const [showCancelModal, setShowCancelModal] = useState<boolean>(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [page, setPage] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const {id: branchId} = useAuth();
   // Mock data for invoices
   const invoices: Invoice[] = [
     { id: 'DH001', time: '14/05/2025 10:30', items: 3, total: 145000, status: 'pending' },
@@ -81,7 +94,21 @@ const Staff: React.FC = () => {
 
   const total = order.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const filteredProducts = products.filter(product => product.category === selectedCategory);
+  useEffect(() => {
+    // Fetch menu items based on the selected page and pageSize
+    const fetchMenuItems = async () => {
+      try {
+        if (branchId !== null) {
+          const result = await getMenuItemsByBranch(branchId, page, pageSize, selectedCategory);
+          setMenuItems(result.data);
+          setTotalPages(result.totalPages);
+        }
+      } catch (error) {
+        console.error('Error fetching menu items:', error);
+      }
+    };
+    fetchMenuItems();
+  }, [branchId, page, pageSize, selectedCategory]);
 
   return (
     <div style={{ 
@@ -301,14 +328,19 @@ const Staff: React.FC = () => {
                 height: '60px'
               }}>
                 {[
-                  { id: 'coffee', label: 'Cà phê', icon: '☕' },
-                  { id: 'snack', label: 'Đồ ăn nhẹ', icon: '🍪' },
-                  { id: 'juice', label: 'Nước ép', icon: '🥤' },
-                  { id: 'tea', label: 'Trà', icon: '🍵' }
+                  { id: 1, label: 'Cà phê', icon: '☕' },
+                  { id: 2, label: 'Đồ ăn nhẹ', icon: '🍪' },
+                  { id: 3, label: 'Nước ép', icon: '🥤' },
+                  { id: 4, label: 'Trà', icon: '🍵' }
                 ].map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setSelectedCategory(tab.id as 'coffee' | 'snack' | 'juice' | 'tea')}
+                    onClick={() => {
+                      if (selectedCategory !== tab.id) {
+                        setSelectedCategory(tab.id as 0 | 1 | 2 | 3 | 4);
+                      } else setSelectedCategory(0);
+                      setPage(0);
+                    }}
                     style={{
                       padding: '8px 16px',
                       border: 'none',
@@ -340,13 +372,58 @@ const Staff: React.FC = () => {
                 flex: 1,
                 justifyContent: 'center'
               }}>
-                {filteredProducts.map(product => (
+                {menuItems.map((product) => (
                   <Product
                     key={product.id}
-                    {...product}
+                    id={product.id}
+                    name={product.name}
+                    price={product.price}
+                    img={product.img}
+                    category={product.category}
                     onAddToOrder={addToOrder}
                   />
                 ))}
+              </div>
+              {/* Pagination */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px' }}>
+                <button
+                  onClick={() => setPage(p => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  style={{
+                    padding: '8px 12px',
+                    background: page === 0 ? '#ccc' : '#8B4513',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: page === 0 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  Trang trước
+                </button>
+                <span style={{
+                  padding: '8px 12px',
+                  background: '#8B4513',
+                  color: 'white',
+                  borderRadius: '4px',
+                  minWidth: '80px',
+                  textAlign: 'center'
+                }}>
+                  Trang {totalPages === 0 ? 0 : page + 1}/{totalPages}
+                </span>
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                  disabled={page >= totalPages - 1}
+                  style={{
+                    padding: '8px 12px',
+                    background: page >= totalPages - 1 ? '#ccc' : '#8B4513',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: page >= totalPages - 1 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  Trang sau
+                </button>
               </div>
             </div>
 

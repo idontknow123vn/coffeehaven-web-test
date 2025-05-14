@@ -34,10 +34,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userType: role,
     });
     if (result.status === 200) {
-      localStorage.setItem('accessToken', result.data.accessToken);
+      localStorage.setItem('accessToken', result.data.data.accessToken);
       setAccessToken(result.data.data.accessToken);
       setIsAuthenticated(true);
       setUserRole(result.data.data.role);
+      setId(result.data.data.id);
       return result.data.data.role;
     }
     else return "false";

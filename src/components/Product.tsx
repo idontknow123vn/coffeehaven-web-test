@@ -5,12 +5,13 @@ interface ProductProps {
   name: string;
   price: number;
   img: string;
+  category?: string;
   onAddToOrder: (product: { id: number; name: string; price: number; img: string }) => void;
 }
 
-const Product: React.FC<ProductProps> = ({ id, name, price, img, onAddToOrder }) => {
+const Product: React.FC<ProductProps> = ({ id, name, price, img, category, onAddToOrder }) => {
   return (
-    <div style={{
+    <div style={{ 
       background: '#FFFFFF',
       borderRadius: '12px',
       padding: '20px',
