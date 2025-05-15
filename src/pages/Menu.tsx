@@ -45,7 +45,10 @@ const MenuPage: React.FC = () => {
             <div className="flex items-center space-x-4 mb-4">
                 <select
                     value={categoryId}
-                    onChange={(e) => setCategoryId(Number(e.target.value))}
+                    onChange={(e) => 
+                        {setCategoryId(Number(e.target.value));
+                        setPage(0); // Reset to the first page when category changes
+                        }}
                     className="border rounded p-2"
                 >
                     <option value={0}>Tất cả</option>

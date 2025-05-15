@@ -5,6 +5,7 @@ import { MdShoppingCart, MdPerson, MdRestaurantMenu, MdVisibility, MdDelete } fr
 import { BsCalendarCheck } from 'react-icons/bs';
 import { getMenuItemsByBranch } from '../services/menu-items';
 import { useAuth } from '../contexts/AuthContext';
+import { createOrder, getOrderByIdBranch } from '../services/staff_order';
 
 interface OrderItem {
   id: number;
@@ -13,12 +14,11 @@ interface OrderItem {
   img: string;
   qty: number;
 }
-
+const optionsTimeZone = { timeZone: "Asia/Ho_Chi_Minh", hour12: false };
 interface Invoice {
-  id: string;
-  time: string;
-  items: number;
-  total: number;
+  orderId: string;
+  orderDate: string;
+  totalPrice: number;
   status: 'pending' | 'processing' | 'completed';
 }
 
@@ -44,13 +44,8 @@ const Staff: React.FC = () => {
   const [page, setPage] = useState<number>(0);
   const [pageSize, setPageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const {id: branchId} = useAuth();
-  // Mock data for invoices
-  const invoices: Invoice[] = [
-    { id: 'DH001', time: '14/05/2025 10:30', items: 3, total: 145000, status: 'pending' },
-    { id: 'DH002', time: '14/05/2025 10:35', items: 2, total: 89000, status: 'processing' },
-    { id: 'DH003', time: '14/05/2025 10:40', items: 4, total: 210000, status: 'completed' },
-  ];
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const { id: branchId } = useAuth();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -94,6 +89,33 @@ const Staff: React.FC = () => {
 
   const total = order.reduce((sum, item) => sum + item.price * item.qty, 0);
 
+  const _createOrder = async () => {
+    const orderData = {
+      branchId: branchId,
+      status: 'Pending',
+      totalPrice: total,
+      orderItems: order.map(item => ({
+        menuItemId: item.id,
+        quantity: item.qty,
+        unitPrice: item.price,
+      }),)
+    }
+    console.log('Order data:', orderData);
+    try {
+      const result = await createOrder(orderData);
+      if (result.status === 200) {
+        alert('Đặt hàng thành công');
+        setOrder([]);
+      } else {
+        alert('Đặt hàng thất bại');
+      }
+    }
+    catch (error) {
+      console.error('Error creating order:', error);
+      alert('Đặt hàng thất bại');
+    }
+  }
+
   useEffect(() => {
     // Fetch menu items based on the selected page and pageSize
     const fetchMenuItems = async () => {
@@ -109,6 +131,23 @@ const Staff: React.FC = () => {
     };
     fetchMenuItems();
   }, [branchId, page, pageSize, selectedCategory]);
+
+  useEffect(() => {
+    if (activeScreen === 'invoice' && branchId) {
+      console.log('Fetching invoices for branch:', branchId);
+      // Gọi API lấy danh sách hóa đơn theo chi nhánh
+      getOrderByIdBranch(branchId)
+        .then(res => {
+          console.log('Invoices:', res.data.data);
+          setInvoices(res.data.data); 
+          // Đảm bảo res.data là mảng hóa đơn từ server
+        })
+        .catch(err => {
+          setInvoices([]);
+          console.error('Lỗi lấy danh sách hóa đơn:', err);
+        });
+    }
+  }, [activeScreen, branchId]);
 
   return (
     <div style={{ 
@@ -528,6 +567,7 @@ const Staff: React.FC = () => {
                     fontSize: '16px',
                     outline: 'none'
                   }}
+                  onClick={_createOrder}
                 >
                   In hóa đơn
                 </button>
@@ -615,7 +655,6 @@ const Staff: React.FC = () => {
                   <tr style={{ borderBottom: '2px solid #dee2e6' }}>
                     <th style={{ textAlign: 'left', padding: '12px' }}>Mã đơn</th>
                     <th style={{ textAlign: 'left', padding: '12px' }}>Thời gian</th>
-                    <th style={{ textAlign: 'center', padding: '12px' }}>Số món</th>
                     <th style={{ textAlign: 'right', padding: '12px' }}>Tổng tiền</th>
                     <th style={{ textAlign: 'center', padding: '12px' }}>Trạng thái</th>
                     <th style={{ textAlign: 'center', padding: '12px' }}>Hành động</th>
@@ -623,12 +662,11 @@ const Staff: React.FC = () => {
                 </thead>
                 <tbody>
                   {invoices.map((invoice) => (
-                    <tr key={invoice.id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                      <td style={{ padding: '12px' }}>{invoice.id}</td>
-                      <td style={{ padding: '12px' }}>{invoice.time}</td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>{invoice.items}</td>
+                    <tr key={invoice.orderId} style={{ borderBottom: '1px solid #dee2e6' }}>
+                      <td style={{ padding: '12px' }}>{invoice.orderId}</td>
+                      <td style={{ padding: '12px' }}>{new Date(invoice.orderDate).toLocaleString("vi-VN", optionsTimeZone)}</td>
                       <td style={{ padding: '12px', textAlign: 'right' }}>
-                        {invoice.total.toLocaleString()}đ
+                        {invoice.totalPrice.toString()}VND
                       </td>
                       <td style={{ 
                         padding: '12px', 
@@ -818,6 +856,7 @@ const Staff: React.FC = () => {
                       onClick={() => {
                         // Add cancel logic here
                         setShowCancelModal(false);
+
                       }}
                       style={{
                         flex: 1,

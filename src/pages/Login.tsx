@@ -11,6 +11,7 @@ const Login = () => {
     const { login } = useAuth();
 
     const handleLogin = () => {
+        setRole("EMPLOYEE")
         const result = login(username, password, role);
         // Redirect based on role
         result
@@ -54,23 +55,6 @@ const Login = () => {
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
                             placeholder="Nhập mật khẩu"
                         />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Vai trò
-                        </label>
-                        <select
-                            value={role}
-                            onChange={(e) =>
-                                setRole(
-                                    e.target.value as "EMPLOYEE" | "CUSTOMER"
-                                )
-                            }
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                        >
-                            <option value="EMPLOYEE">Nhân viên</option>
-                            <option value="CUSTOMER">Người dùng</option>
-                        </select>
                     </div>
                     <button
                         onClick={handleLogin}

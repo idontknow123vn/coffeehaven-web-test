@@ -12,5 +12,6 @@ const createAxiosInstance = (servicePath: string) => {
 const identity = createAxiosInstance('api/auth');
 const menuItems = createAxiosInstance('api/menu-items');
 const manager = createAxiosInstance('api/manager');
+const staff = createAxiosInstance('api/employee');
 
-export { identity, menuItems, manager };
+export { identity, menuItems, manager, staff };
