@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { getEmployeesByBranch } from "../services/manager";
+import { useAuth } from "../../contexts/AuthContext";
+import { getEmployeesByBranch } from "../../services/manager";
 
 const EmployeesPage: React.FC = () => {
       const [employeeFilter, setEmployeeFilter] = useState<string>('Toàn bộ nhân viên');

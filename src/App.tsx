@@ -3,11 +3,11 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import Sidebar from "./components/Sidebar";
-import BranchesPage from "./pages/Branch";
-import MenuPage from "./pages/Menu";
-import EmployeesPage from "./pages/Employee";
+import BranchesPage from "./pages/branch_manager/Branch";
+import MenuPage from "./pages/branch_manager/Menu";
+import EmployeesPage from "./pages/branch_manager/Employee";
 import OrdersPage from "./pages/Order";
-import Login from "./pages/Login";
+import Login from "./pages/branch_manager/Login";
 import Staff from "./pages/Staff";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { getMenuItemsByBranch } from "../services/menu-items";
+import { useAuth } from "../../contexts/AuthContext";
+import { getMenuItemsByBranch } from "../../services/menu-items";
 
 const MenuPage: React.FC = () => {
     const [branch, setBranch] = useState<string>("Tất cả");
