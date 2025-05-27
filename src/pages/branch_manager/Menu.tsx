@@ -86,7 +86,7 @@ const MenuPage: React.FC = () => {
             setTotalPages(result.totalPages);
             // Reload lại danh sách món chưa có trong chi nhánh
             const notInBranch = await getMenuItemsNotInBranch(branchId);
-            setAllMenuItems(notInBranch.data ?? []);
+            setAllMenuItems(notInBranch.data.data ?? []);
         } finally {
             setAdding(null);
         }
