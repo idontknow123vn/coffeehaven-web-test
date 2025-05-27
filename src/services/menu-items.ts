@@ -7,8 +7,4 @@ const getMenuItemsByBranch = async (branchId: number, page = 0, size = 10, categ
   return response.data;
 };
 
-const getMenuItemsNotInBranch = async (branchId: number, page = 0, size = 10, categoryId = 0) => {
-  
-}
-
 export { getMenuItemsByBranch };

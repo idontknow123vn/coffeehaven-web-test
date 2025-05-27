@@ -62,4 +62,4 @@ const addItemToBranch = async (branchId: number, itemId: number) => {
     }
 }
 
-export { getEmployeesByBranch, getMenuItemsNotInBranch };
+export { getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch };
