@@ -7,4 +7,11 @@ const getMenuItemsByBranch = async (branchId: number, page = 0, size = 10, categ
   return response.data;
 };
 
-export { getMenuItemsByBranch };
+const getMenuItems = async (page = 0, size = 10, categoryId = 0) => {
+  const response = await menuItems.get('', {
+    params: { page, size, categoryId },
+  });
+  return response.data;
+}
+
+export { getMenuItemsByBranch, getMenuItems };

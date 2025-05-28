@@ -20,7 +20,9 @@ const Login = () => {
                     navigate("/manager-dashboard");
                 } else if (value === "Counter_Staff" || value === "Delivery_Staff") {
                     navigate("/employee-dashboard");
-                }
+                } else (
+                    navigate("/head-office")
+                );
             })
             .catch((e) => alert(e));
     };

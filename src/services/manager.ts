@@ -62,4 +62,112 @@ const addItemToBranch = async (branchId: number, itemId: number) => {
     }
 }
 
-export { getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch };
+const getShiftByBranchInWeek = async (branchId: number, date: string) => {
+    try {
+        const result = await manager(`/branch-shifts/${branchId}/week/${date}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching shifts by branch in week:", error);
+        throw error;
+    }
+}
+
+const addEmployeeToShift = async (shiftId: number, employeeId: number, date: string) => {
+    try {
+        const result = await manager(`/assign-shift`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                shiftId: shiftId,
+                employeeId: employeeId,
+                shiftDate: date, // Assuming you want to assign the current date
+            }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error adding employee to shift:", error);
+        throw error;
+    }
+}
+
+const getEmployeesNotManager = async (branchId: number) => {
+    try {
+        const result = await manager(`/employees/${branchId}/exclude-managers`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching employees not manager:", error);
+        throw error;
+    }
+}
+
+const updateEmployeeShift = async (
+    employeeId: number, 
+    oldShiftId: string, 
+    oldDate: string,
+    newShiftId: number, 
+    newDate: string
+) => {
+    try {
+        const result = await manager(`/update-employee-shift`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                employeeId: employeeId,
+                oldShiftId: oldShiftId,
+                oldShiftDate: oldDate,
+                newShiftId: newShiftId,
+                newShiftDate: newDate,
+            }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error updating employee shift:", error);
+        throw error;
+    }
+}
+
+const deleteEmployeeShift = async (employeeId: number, shiftId: number, date: string) => {
+    try {
+        const result = await manager(`/delete-employee-shift`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                employeeId: employeeId,
+                oldShiftId: shiftId,
+                oldShiftDate: date,
+            }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error deleting employee shift:", error);
+        throw error;
+    }
+}
+
+export { getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch, getShiftByBranchInWeek, addEmployeeToShift, getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift };

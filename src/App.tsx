@@ -3,7 +3,7 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 import Sidebar from "./components/Sidebar";
-import BranchesPage from "./pages/branch_manager/Branch";
+import BranchesPage from "./pages/head_office/Branch";
 import MenuPage from "./pages/branch_manager/Menu";
 import EmployeesPage from "./pages/branch_manager/Employee";
 import OrdersPage from "./pages/Order";
@@ -11,6 +11,8 @@ import Login from "./pages/branch_manager/Login";
 import Staff from "./pages/Staff";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MenuItemPage from "./pages/head_office/MenuItem";
+import Shift from "./pages/branch_manager/Shift";
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -20,6 +22,43 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login />} />
+
+                    {/* Head Office Routes */}
+                    <Route
+                        path="/head-office"
+                        element={
+                            <ProtectedRoute allowedRoles={['Head_Office']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <div className="flex-1 p-6">
+                                        <h2 className="text-2xl">Head Office Dashboard</h2>
+                                    </div>
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/head-office/branches"
+                        element={
+                            <ProtectedRoute allowedRoles={['Head_Office']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <BranchesPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/head-office/menu"
+                        element={
+                            <ProtectedRoute allowedRoles={['Head_Office']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <MenuItemPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
                     
                     {/* Manager Routes */}
                     <Route
@@ -53,6 +92,17 @@ function App() {
                                 <div className="flex">
                                     <Sidebar />
                                     <EmployeesPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/shift"
+                        element={
+                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <Shift />
                                 </div>
                             </ProtectedRoute>
                         }
