@@ -1,35 +1,30 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getEmployeesByBranch } from "../../services/manager";
 import LogoutButton from "../../components/LogoutButton";
+import ModalAddEmployee from "../../components/ModalAddEmployee";
 
 const EmployeesPage: React.FC = () => {
       const [employeeFilter, setEmployeeFilter] = useState<string>('Toàn bộ nhân viên');
       const [employees, setEmployees] = useState<any[]>([]);
+      const [showAddModal, setShowAddModal] = useState(false);
       const {id: branchId} = useAuth();
 
-      useEffect(() => {
-        // Fetch employees data based on the selected filter
-        // This is a placeholder for actual data fetching logic
-        const fetchEmployees = async () => {
-          try {
-            if (branchId) {
-              const response = await getEmployeesByBranch(branchId);
-              setEmployees(response.data.data);
-              console.log("Employees data:", response.data);
-            }
-          } catch (error) {
-            console.error("Error fetching employees:", error);
+      const fetchEmployees = useCallback(async () => {
+        try {
+          if (branchId) {
+            const response = await getEmployeesByBranch(branchId);
+            setEmployees(response.data.data);
+            console.log("Employees data:", response.data);
           }
+        } catch (error) {
+          console.error("Error fetching employees:", error);
         }
-        fetchEmployees();
-      }, []);
+      }, [branchId]);
 
-      const employeesData = [
-        { name: 'Nguyễn Văn A', role: 'Nhân viên tại quầy', phone: '0332065084', orders: 32, status: 'Đang làm' },
-        { name: 'Trần Văn B', role: 'Nhân viên vận chuyển', phone: '0994365132', orders: 54, status: 'Nghỉ' },
-        { name: 'Nguyễn Văn C', role: 'Nhân viên vận chuyển', phone: '0444525484', orders: 12, status: 'Đang làm' },
-      ];
+      useEffect(() => {
+        fetchEmployees();
+      }, [fetchEmployees]);
 
       return (
         <div className="flex-1 p-6">
@@ -48,7 +43,7 @@ const EmployeesPage: React.FC = () => {
               <option>Nhân viên tại quầy</option>
               <option>Nhân viên vận chuyển</option>
             </select>
-            <button className="bg-orange-500 text-white px-4 py-2 rounded">Thêm nhân viên</button>
+            <button className="bg-orange-500 text-white px-4 py-2 rounded" onClick={() => setShowAddModal(true)}>Thêm nhân viên</button>
           </div>
 
           <table className="w-full border-collapse">
@@ -57,8 +52,8 @@ const EmployeesPage: React.FC = () => {
                 <th className="p-2 text-left">Tên nhân viên</th>
                 <th className="p-2 text-left">Vai trò</th>
                 <th className="p-2 text-left">Email</th>
-                <th className="p-2 text-left">Số đơn</th>
-                <th className="p-2 text-left">Trạng thái</th>
+                {/* <th className="p-2 text-left">Số đơn</th>
+                <th className="p-2 text-left">Trạng thái</th> */}
                 <th className="p-2 text-left"></th>
               </tr>
             </thead>
@@ -74,11 +69,22 @@ const EmployeesPage: React.FC = () => {
                       {employee.status}
                     </span>
                   </td>
-                  <td className="p-2">👁️</td>
+                  {/* <td className="p-2">👁️</td> */}
                 </tr>
               ))}
             </tbody>
           </table>
+
+          <ModalAddEmployee
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            onAdd={async () => {
+              setShowAddModal(false);
+              await fetchEmployees();
+            }}
+            branchId={branchId ?? 0}
+            addType="employee"
+          />
         </div>
       );
     };

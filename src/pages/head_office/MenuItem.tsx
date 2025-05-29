@@ -2,8 +2,16 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getMenuItems } from "../../services/menu-items";
 import ModalAddMenuItem from "../../components/ModalAddItem";
+import LogoutButton from "../../components/LogoutButton";
 
-type MenuItem = { id: number; name: string; category: string; price: number; orders?: number; available?: boolean };
+type MenuItem = {
+    id: number;
+    name: string;
+    category: string;
+    price: number;
+    orders?: number;
+    available?: boolean;
+};
 
 const MenuItemPage: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -20,7 +28,7 @@ const MenuItemPage: React.FC = () => {
         // Fetch menu items based on the selected page and pageSize
         const fetchMenuItems = async () => {
             try {
-                if (typeof branchId === 'number') {
+                if (typeof branchId === "number") {
                     const result = await getMenuItems(
                         page,
                         pageSize,
@@ -85,15 +93,8 @@ const MenuItemPage: React.FC = () => {
     return (
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-semibold">
-                    Quản lý thực đơn - Chi nhánh Đa Năng
-                </h2>
-                <div className="flex items-center space-x-4">
-                    <span>Xin chào, User</span>
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        JW
-                    </div>
-                </div>
+                <h2 className="text-2xl font-semibold">Quản lý thực đơn</h2>
+                <LogoutButton />
             </div>
 
             <div className="flex items-center space-x-4 mb-4">
@@ -145,7 +146,9 @@ const MenuItemPage: React.FC = () => {
                                             : "text-red-500"
                                     }
                                 >
-                                    {item.available === true ? "Còn hàng" : "Hết hàng"}
+                                    {item.available === true
+                                        ? "Còn hàng"
+                                        : "Hết hàng"}
                                 </span>
                             </td>
                             <td className="p-2">✏️</td>
@@ -194,7 +197,7 @@ const MenuItemPage: React.FC = () => {
                     }}
                     onSave={(newItem) => {
                         // TODO: Gọi API thêm món mới vào hệ thống tại đây
-                        console.log('Thêm món mới:', newItem);
+                        console.log("Thêm món mới:", newItem);
                     }}
                 />
             )}

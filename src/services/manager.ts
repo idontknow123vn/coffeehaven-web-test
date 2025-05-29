@@ -221,5 +221,24 @@ const getMonthlyRevenueByBranch = async (branchId: number, month: number, year: 
     }
 }
 
+const addEmployee = async (employeeData: any) => {
+    try {
+        const result = await manager(`/create-employee`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify(employeeData),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error adding employee:", error);
+        throw error;
+    }
+}
+
 export {getBranchDetails, getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch, getShiftByBranchInWeek, addEmployeeToShift, 
-    getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift, getWeeklyRevenueByBranch, getMonthlyRevenueByBranch};
+    getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift, getWeeklyRevenueByBranch, getMonthlyRevenueByBranch,
+    addEmployee};

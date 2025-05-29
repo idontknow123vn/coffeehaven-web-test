@@ -2,13 +2,27 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getOrderByIdBranch } from "../services/staff_order";
 import LogoutButton from "../components/LogoutButton";
+import ModalOrderDetail from "../components/ModalOrderDetail";
+import type { Order } from "../utils/Order";
 
-interface Order {
+
+
+interface OrderDetail {
     id: number;
+    orderId: number;
+    itemName: string;
+    price: number;
+    quantity: number;
+}
+
+// Định nghĩa type cho dữ liệu trả về từ API
+interface ApiOrder {
+    orderId: number;
     branchId: number;
     status: string;
     totalPrice: number;
-    createdAt: string;
+    orderDate: string;
+    customerInfo?: string;
 }
 
 const OrdersPage: React.FC = () => {
@@ -18,6 +32,9 @@ const OrdersPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { id: branchId } = useAuth(); // Placeholder for branch ID
     const [orders, setOrders] = useState<Order[]>([]);
+    const [orderDetail, setOrderDetail] = useState<OrderDetail[]>([]);
+    const [showOrderModal, setShowOrderModal] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
     useEffect(() => {
         // Fetch orders data based on the selected filters
@@ -27,12 +44,13 @@ const OrdersPage: React.FC = () => {
                 // Simulate an API call
                 if (branchId) {
                     const response = await getOrderByIdBranch(branchId);
-                    setOrders(response.data.data.map((order: any) => ({
+                    setOrders((response.data.data as ApiOrder[]).map((order) => ({
                         id: order.orderId,
                         branchId: order.branchId,
                         status: order.status,
                         totalPrice: order.totalPrice,
                         createdAt: order.orderDate,
+                        customerInfo: order.customerInfo,
                     })));
                     console.log("Orders data:", response.data);
                 }
@@ -41,34 +59,23 @@ const OrdersPage: React.FC = () => {
             }
         };
         fetchOrders();
-    }, []);
+    }, [branchId]);
 
-    // const ordersData = [
-    //     {
-    //         id: "DH001",
-    //         location: "Tài quầy",
-    //         item: "Latte",
-    //         price: "50K",
-    //         time: "22/04/2025 10:00",
-    //         status: "Đang chờ",
-    //     },
-    //     {
-    //         id: "DH002",
-    //         location: "Tài quầy",
-    //         item: "Cappuccino",
-    //         price: "40K",
-    //         time: "22/04/2025 10:30",
-    //         status: "Đang chờ",
-    //     },
-    //     {
-    //         id: "DH003",
-    //         location: "Tài quầy",
-    //         item: "Cappuccino",
-    //         price: "70K",
-    //         time: "22/04/2025 10:45",
-    //         status: "Đang chờ",
-    //     },
-    // ];
+    // Hàm lấy chi tiết đơn hàng (giả sử có API getOrderDetailByOrderId)
+    const handleShowOrderDetail = async (order: Order) => {
+        // TODO: Gọi API lấy chi tiết đơn hàng theo order.id
+        // const detail = await getOrderDetailByOrderId(order.id);
+        // setOrderDetail(detail);
+        // setSelectedOrder(order);
+        // setShowOrderModal(true);
+        // Tạm thời mock dữ liệu:
+        setOrderDetail([
+            { id: 1, orderId: order.id, itemName: "Latte", price: 50000, quantity: 2 },
+            { id: 2, orderId: order.id, itemName: "Cappuccino", price: 40000, quantity: 1 },
+        ]);
+        setSelectedOrder(order);
+        setShowOrderModal(true);
+    };
 
     return (
         <div className="flex-1 p-6">
@@ -142,11 +149,17 @@ const OrdersPage: React.FC = () => {
                                     {order.status}
                                 </span>
                             </td>
-                            <td className="p-2">👁️</td>
+                            <td className="p-2 cursor-pointer" onClick={() => handleShowOrderDetail(order)}>👁️</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+
+            <ModalOrderDetail
+                isOpen={showOrderModal}
+                onClose={() => setShowOrderModal(false)}
+                _order={selectedOrder}
+            />
         </div>
     );
 };

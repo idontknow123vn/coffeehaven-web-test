@@ -1,5 +1,18 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getBranches } from "../../services/head_office";
+import ModalCreateBranch from "../../components/ModalCreateBranch";
+import LogoutButton from "../../components/LogoutButton";
+import ModalAddEmployee from "../../components/ModalAddEmployee";
+
+// Định nghĩa type cho dữ liệu trả về từ API
+interface ApiBranch {
+    id: number;
+    name: string;
+    address: string;
+    phoneNumber: string;
+    managerName: string;
+    totalEmployees: number;
+}
 
 interface Branch {
     id: number;
@@ -11,81 +24,43 @@ interface Branch {
 }
 
 const BranchesPage: React.FC = () => {
-    const [branchFilter, setBranchFilter] = useState<string>("Tất cả");
     const [branches, setBranches] = useState<Branch[]>([]);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showAssignManagerModal, setShowAssignManagerModal] = useState(false);
+    const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
 
-    // const branchesData = [
-    //     {
-    //         name: "Haven cs1",
-    //         address: "123 Nguyễn Lương Bằng",
-    //         manager: "Trần Văn A",
-    //         employees: 15,
-    //         revenue: "50M VND",
-    //     },
-    //     {
-    //         name: "Haven cs2",
-    //         address: "23 Lê Lợi",
-    //         manager: "Nguyễn Văn B",
-    //         employees: 12,
-    //         revenue: "20M VND",
-    //     },
-    //     {
-    //         name: "Haven cs3",
-    //         address: "154 Hàm Nghi",
-    //         manager: "Lê Thị C",
-    //         employees: 20,
-    //         revenue: "60M VND",
-    //     },
-    // ];
-    useEffect(() => {
-        // Fetch branches data based on the selected filter
-        // This is a placeholder for actual data fetching logic
-        const fetchBranches = async () => {
-            try {
-                // Simulate fetching data based on branchFilter
-                const result = await getBranches();
-                if (result.data) {
-                    setBranches(result.data.data.map((branch: any) => ({
-                        id: branch.id,
-                        name: branch.name,
-                        address: branch.address,
-                        phone: branch.phoneNumber,
-                        manager: branch.managerName,
-                        employees: branch.totalEmployees,
-                        })));
-                }
-                console.log(`Fetching branches with filter: ${branchFilter}`);
-                // Here you would typically make an API call to fetch the data
-            } catch (error) {
-                console.error("Error fetching branches:", error);
+    const fetchBranches = useCallback(async () => {
+        try {
+            const result = await getBranches();
+            if (result.data) {
+                setBranches((result.data.data as ApiBranch[]).map((branch) => ({
+                    id: branch.id,
+                    name: branch.name,
+                    address: branch.address,
+                    phone: branch.phoneNumber,
+                    manager: branch.managerName,
+                    employees: branch.totalEmployees,
+                })));
             }
-        };
+        } catch (error) {
+            console.error("Error fetching branches:", error);
+        }
+    }, []);
+
+    useEffect(() => {
         fetchBranches();
-    }, [branchFilter]);
+    }, [fetchBranches]);
 
     return (
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">Quản lý chi nhánh</h2>
-                <div className="flex items-center space-x-4">
-                    <span>Xin chào, User</span>
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        JW
-                    </div>
-                </div>
+                <LogoutButton />
             </div>
 
             <div className="flex items-center space-x-4 mb-4">
-                <select
-                    value={branchFilter}
-                    onChange={(e) => setBranchFilter(e.target.value)}
-                    className="border rounded p-2"
-                >
-                    <option>Tất cả</option>
-                    <option>Chi nhánh Đa Năng</option>
-                </select>
-                <button className="bg-orange-500 text-white px-4 py-2 rounded">
-                    Thêm món
+                <button className="bg-orange-500 text-white px-4 py-2 rounded" onClick={() => setShowCreateModal(true)}>
+                    Thêm chi nhánh
                 </button>
             </div>
 
@@ -109,7 +84,19 @@ const BranchesPage: React.FC = () => {
                             <td className="p-2">{branch.name}</td>
                             <td className="p-2">{branch.address}</td>
                             <td className="p-2">{branch.phone}</td>
-                            <td className="p-2">{branch.manager}</td>
+                            <td className="p-2">
+                                {(!branch.manager || branch.manager === "No Manager Assigned") ? (
+                                    <button
+                                        className="bg-blue-500 text-white px-3 py-1 rounded text-sm"
+                                        onClick={() => {
+                                            setSelectedBranchId(branch.id);
+                                            setShowAssignManagerModal(true);
+                                        }}
+                                    >
+                                        Bổ nhiệm quản lý
+                                    </button>
+                                ) : branch.manager}
+                            </td>
                             <td className="p-2">{branch.employees}</td>
                             {/* <td className="p-2">{branch.revenue}</td> */}
                             <td className="p-2">👁️</td>
@@ -117,6 +104,26 @@ const BranchesPage: React.FC = () => {
                     ))}
                 </tbody>
             </table>
+
+            <ModalCreateBranch
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+                onCreate={async () => {
+                    setShowCreateModal(false);
+                    await fetchBranches();
+                }}
+            />
+
+            <ModalAddEmployee
+                isOpen={showAssignManagerModal}
+                onClose={() => setShowAssignManagerModal(false)}
+                addType="Branch_Manager"
+                branchId={selectedBranchId || 0}
+                onAdd={async () => {
+                    setShowAssignManagerModal(false);
+                    await fetchBranches();
+                }}
+            />
         </div>
     );
 };
