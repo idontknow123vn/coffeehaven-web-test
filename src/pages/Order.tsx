@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { getOrderByIdBranch } from "../services/staff_order";
+import LogoutButton from "../components/LogoutButton";
 
 interface Order {
     id: number;
@@ -75,12 +76,7 @@ const OrdersPage: React.FC = () => {
                 <h2 className="text-2xl font-semibold">
                     Quản lý đơn hàng
                 </h2>
-                <div className="flex items-center space-x-4">
-                    <span>Xin chào, User</span>
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        JW
-                    </div>
-                </div>
+                <LogoutButton />
             </div>
 
             <div className="flex items-center space-x-4 mb-4">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getShiftByBranchInWeek, addEmployeeToShift, getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift } from "../../services/manager";
+import LogoutButton from "../../components/LogoutButton";
 
 const ShiftPage: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
@@ -191,12 +192,7 @@ const ShiftPage: React.FC = () => {
                 <h2 className="text-2xl font-semibold">
                     Quản lý ca làm việc
                 </h2>
-                <div className="flex items-center space-x-4">
-                    <span>Xin chào, User</span>
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        JW
-                    </div>
-                </div>
+                <LogoutButton />
             </div>
             <div className="mb-8">
                 <h3 className="text-lg font-semibold mb-2">Bảng phân ca theo tuần</h3>

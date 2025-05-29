@@ -18,4 +18,23 @@ const _login = async (data: any) => {
     }
 };
 
-export { _login };
+const _logout = async () => {
+    try {
+        const result = await identity("/logout", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            data: JSON.stringify({
+                token: localStorage.getItem("accessToken"),
+            }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Logout error:", error);
+        throw error;
+    }
+}
+
+export { _login, _logout };

@@ -4,6 +4,7 @@ import {
     getMenuItemsByBranch,
 } from "../../services/menu-items";
 import { getMenuItemsNotInBranch, addItemToBranch } from "../../services/manager";
+import LogoutButton from "../../components/LogoutButton";
 
 // Sửa lại type cho menuItems và allMenuItems để có thể có orders/available (nếu có)
 type MenuItem = { id: number; name: string; category: string; price: number; orders?: number; available?: boolean };
@@ -98,12 +99,7 @@ const MenuPage: React.FC = () => {
                 <h2 className="text-2xl font-semibold">
                     Quản lý thực đơn
                 </h2>
-                <div className="flex items-center space-x-4">
-                    <span>Xin chào, User</span>
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        JW
-                    </div>
-                </div>
+                <LogoutButton />
             </div>
 
             <div className="flex items-center space-x-4 mb-4">

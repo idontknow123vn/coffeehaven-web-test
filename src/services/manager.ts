@@ -187,4 +187,39 @@ const deleteEmployeeShift = async (employeeId: number, shiftId: number, date: st
     }
 }
 
-export {getBranchDetails, getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch, getShiftByBranchInWeek, addEmployeeToShift, getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift };
+const getWeeklyRevenueByBranch = async (branchId: number, date: string) => {
+    try {
+        const result = await manager(`/branch/${branchId}/week/${date}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching weekly revenue by branch:", error);
+        throw error;
+    }
+}
+
+const getMonthlyRevenueByBranch = async (branchId: number, month: number, year: number) => {
+    try {
+        const result = await manager(`/branch/${branchId}/statistics/${year}/${month}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching monthly revenue by branch:", error);
+        throw error;
+    }
+}
+
+export {getBranchDetails, getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch, getShiftByBranchInWeek, addEmployeeToShift, 
+    getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift, getWeeklyRevenueByBranch, getMonthlyRevenueByBranch};

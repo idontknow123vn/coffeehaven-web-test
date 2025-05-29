@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getBranchDetails } from "../../services/manager";
 import { useAuth } from "../../contexts/AuthContext";
+import LogoutButton from "../../components/LogoutButton";
 
 interface Branch {
     id: number;
@@ -42,12 +43,7 @@ const BranchDetailsPage: React.FC = () => {
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">Quản lý chi nhánh</h2>
-                <div className="flex items-center space-x-4">
-                    <span>Xin chào, User</span>
-                    <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        JW
-                    </div>
-                </div>
+                <LogoutButton />
             </div>
 
             {/* Hiển thị thông tin chi nhánh dạng card/info block */}

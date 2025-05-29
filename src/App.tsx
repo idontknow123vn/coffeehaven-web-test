@@ -14,6 +14,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MenuItemPage from "./pages/head_office/MenuItem";
 import Shift from "./pages/branch_manager/Shift";
 import BranchDetailsPage from "./pages/branch_manager/BranchDetail";
+import RevenueSum from "./pages/branch_manager/RevenueSum";
+import NotFound from "./pages/NotFound";
+import LogoutButton from "./components/LogoutButton";
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -33,8 +36,10 @@ function App() {
                                     <Sidebar />
                                     <div className="flex-1 p-6">
                                         <h2 className="text-2xl">Head Office Dashboard</h2>
+                                        <LogoutButton />
                                     </div>
                                 </div>
+                                {/* <RevenueSum /> */}
                             </ProtectedRoute>
                         }
                     />
@@ -68,9 +73,7 @@ function App() {
                             <ProtectedRoute allowedRoles={['Branch_Manager']}>
                                 <div className="flex">
                                     <Sidebar />
-                                    <div className="flex-1 p-6">
-                                        <h2 className="text-2xl">Manager Dashboard</h2>
-                                    </div>
+                                    <RevenueSum />
                                 </div>
                             </ProtectedRoute>
                         }
@@ -140,6 +143,9 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+
+                    {/* 404 Not Found Route */}
+                    <Route path="*" element={<NotFound />} />
 
                     {/* Default redirect */}
                     <Route path="/" element={<Navigate to="/login" replace />} />

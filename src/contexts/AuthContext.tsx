@@ -5,6 +5,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   userRole: string | null;
   id: number | null;
+  name: string | null;
   login: (username: string, password: string, role:  'EMPLOYEE' | 'CUSTOMER' | null) => Promise<string>;
   logout: () => void;
   accessToken: string | null;
@@ -17,6 +18,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userRole, setUserRole] = useState<'EMPLOYEE' | 'CUSTOMER' | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [id, setId] = useState<number | null>(null);
+  const [name, setName] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -39,6 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAuthenticated(true);
       setUserRole(result.data.data.role);
       setId(result.data.data.id);
+      setName(result.data.data.name);
       return result.data.data.role;
     }
     else return "false";
@@ -51,7 +54,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, userRole, login, logout, accessToken, id }}>
+    <AuthContext.Provider value={{ isAuthenticated, userRole, login, logout, accessToken, id, name }}>
       {children}
     </AuthContext.Provider>
   );
