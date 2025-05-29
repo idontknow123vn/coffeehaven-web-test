@@ -33,7 +33,7 @@ const EmployeesPage: React.FC = () => {
       return (
         <div className="flex-1 p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-semibold">Quản lý nhân viên - Chi nhánh Đa Năng</h2>
+            <h2 className="text-2xl font-semibold">Quản lý nhân viên</h2>
             <div className="flex items-center space-x-4">
               <span>Xin chào, User</span>
               <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">JW</div>

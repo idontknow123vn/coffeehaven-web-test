@@ -7,12 +7,13 @@ import BranchesPage from "./pages/head_office/Branch";
 import MenuPage from "./pages/branch_manager/Menu";
 import EmployeesPage from "./pages/branch_manager/Employee";
 import OrdersPage from "./pages/Order";
-import Login from "./pages/branch_manager/Login";
+import Login from "./pages/Login";
 import Staff from "./pages/Staff";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MenuItemPage from "./pages/head_office/MenuItem";
 import Shift from "./pages/branch_manager/Shift";
+import BranchDetailsPage from "./pages/branch_manager/BranchDetail";
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -80,7 +81,7 @@ function App() {
                             <ProtectedRoute allowedRoles={['Branch_Manager']}>
                                 <div className="flex">
                                     <Sidebar />
-                                    <BranchesPage />
+                                    <BranchDetailsPage />
                                 </div>
                             </ProtectedRoute>
                         }

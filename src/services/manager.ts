@@ -1,5 +1,22 @@
 import { manager } from "../utils/request";
 
+const getBranchDetails = async (branchId: number) => {
+    try {
+        const result = await manager(`/branch-details/${branchId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching branch details:", error);
+        throw error;
+    }
+}
+
 const getEmployeesByBranch = async (branchId: number) => {
     try {
         const result = await manager(`/employees/${branchId}`, {
@@ -170,4 +187,4 @@ const deleteEmployeeShift = async (employeeId: number, shiftId: number, date: st
     }
 }
 
-export { getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch, getShiftByBranchInWeek, addEmployeeToShift, getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift };
+export {getBranchDetails, getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch, getShiftByBranchInWeek, addEmployeeToShift, getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift };

@@ -96,7 +96,7 @@ const MenuPage: React.FC = () => {
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">
-                    Quản lý thực đơn - Chi nhánh Đa Năng
+                    Quản lý thực đơn
                 </h2>
                 <div className="flex items-center space-x-4">
                     <span>Xin chào, User</span>
