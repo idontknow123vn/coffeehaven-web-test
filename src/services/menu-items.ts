@@ -1,4 +1,4 @@
-import { menuItems } from '../utils/request';
+import { category, menuItems } from '../utils/request';
 
 const getMenuItemsByBranch = async (branchId: number, page = 0, size = 10, categoryId = 0) => {
   const response = await menuItems.get(`/branch/${branchId}/category`, {
@@ -14,4 +14,10 @@ const getMenuItems = async (page = 0, size = 10, categoryId = 0) => {
   return response.data;
 }
 
-export { getMenuItemsByBranch, getMenuItems };
+const getMenuItemCategories = async () => {
+  const response = await category.get('');
+  return response.data;
+};
+
+
+export { getMenuItemsByBranch, getMenuItems, getMenuItemCategories };

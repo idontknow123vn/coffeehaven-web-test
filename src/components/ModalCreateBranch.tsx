@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { createBranch } from "../services/head_office";
+import { createBranch } from "../services/head-office";
 
 interface ModalCreateBranchProps {
   isOpen: boolean;

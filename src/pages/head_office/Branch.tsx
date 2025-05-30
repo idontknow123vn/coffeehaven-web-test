@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getBranches } from "../../services/head_office";
+import { getBranches } from "../../services/head-office";
 import ModalCreateBranch from "../../components/ModalCreateBranch";
 import LogoutButton from "../../components/LogoutButton";
 import ModalAddEmployee from "../../components/ModalAddEmployee";

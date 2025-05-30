@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { addEmployee } from "../services/manager";
-import { addBranchManager } from "../services/head_office";
+import { addBranchManager } from "../services/head-office";
 
 interface ModalAddEmployeeProps {
   isOpen: boolean;

@@ -92,7 +92,7 @@ const Staff: React.FC = () => {
   const _createOrder = async () => {
     const orderData = {
       branchId: branchId,
-      status: 'Pending',
+      status: 'Delivered',
       totalPrice: total,
       orderItems: order.map(item => ({
         menuItemId: item.id,

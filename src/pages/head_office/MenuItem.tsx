@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { getMenuItems } from "../../services/menu-items";
+import { getMenuItems, getMenuItemCategories } from "../../services/menu-items";
+import { createMenuItem } from "../../services/head-office";
 import ModalAddMenuItem from "../../components/ModalAddItem";
 import LogoutButton from "../../components/LogoutButton";
 
@@ -24,70 +25,24 @@ const MenuItemPage: React.FC = () => {
     const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
     const [adding, setAdding] = useState<number | null>(null); // id món đang thêm
 
-    useEffect(() => {
-        // Fetch menu items based on the selected page and pageSize
-        const fetchMenuItems = async () => {
-            try {
-                if (typeof branchId === "number") {
-                    const result = await getMenuItems(
-                        page,
-                        pageSize,
-                        categoryId
-                    );
-                    setMenuItems(result.data);
-                    setTotalPages(result.totalPages);
-                }
-            } catch (error) {
-                console.error("Error fetching menu items:", error);
+    const fetchMenuItems = useCallback(async () => {
+        try {
+            if (typeof branchId === "number" && branchId) {
+                const result = await getMenuItems(page, pageSize, categoryId);
+                setMenuItems(result.data);
+                setTotalPages(result.totalPages);
             }
-        };
-        fetchMenuItems();
+        } catch (error) {
+            console.error("Error fetching menu items:", error);
+        }
     }, [branchId, page, pageSize, categoryId]);
 
-    // Lấy danh sách món chưa có trong chi nhánh khi mở modal hoặc khi đổi trang/category
-    // useEffect(() => {
-    //     if (!showAddModal) return;
-    //     const fetchNotInBranch = async () => {
-    //         if (typeof branchId === 'number') {
-    //             const result = await getMenuItemsNotInBranch(branchId, addModalCategoryId, addModalPage, addModalPageSize);
-    //             setAllMenuItems(result.data?.data ?? []);
-    //             setAddModalTotalPages(result.data?.totalPages ?? 1);
-    //         }
-    //     };
-    //     fetchNotInBranch();
-    // }, [showAddModal, branchId, addModalCategoryId, addModalPage, addModalPageSize]);
+    useEffect(() => {
+        fetchMenuItems();
+    }, [fetchMenuItems]);
 
-    // Lấy danh sách món chưa có trong chi nhánh khi mở modal
     const handleOpenAddModal = async () => {
-        // setAddModalPage(0); // Reset về trang đầu khi mở modal
         setShowAddModal(true);
-        // try {
-        //     if (typeof branchId === 'number') {
-        //         const result = await getMenuItemsNotInBranch(branchId);
-        //         setAllMenuItems(result.data.data ?? []);
-        //     } else {
-        //         setAllMenuItems([]);
-        //     }
-        // } catch {
-        //     setAllMenuItems([]);
-        // }
-    };
-    // Thêm món vào chi nhánh
-    const handleAddItem = async (itemId: number) => {
-        // if (typeof branchId !== 'number') return;
-        // setAdding(itemId);
-        // try {
-        //     await addItemToBranch(branchId, itemId);
-        //     // Sau khi thêm, reload menuItems của chi nhánh
-        //     const result = await getMenuItemsByBranch(branchId, page, pageSize, categoryId);
-        //     setMenuItems(result.data);
-        //     setTotalPages(result.totalPages);
-        //     // Reload lại danh sách món chưa có trong chi nhánh
-        //     const notInBranch = await getMenuItemsNotInBranch(branchId);
-        //     setAllMenuItems(notInBranch.data.data ?? []);
-        // } finally {
-        //     setAdding(null);
-        // }
     };
 
     return (
@@ -193,11 +148,12 @@ const MenuItemPage: React.FC = () => {
                     isOpen={showAddModal}
                     onClose={() => {
                         setShowAddModal(false);
-                        setPage(0);
                     }}
-                    onSave={(newItem) => {
-                        // TODO: Gọi API thêm món mới vào hệ thống tại đây
-                        console.log("Thêm món mới:", newItem);
+                    onSave={() => {
+                        setShowAddModal(false);
+                        setPage(0);
+                        setCategoryId(0); // Reset category filter khi LƯU thành công
+                        // Không cần fetchMenuItems ở đây, useEffect sẽ tự động chạy lại đúng 1 lần
                     }}
                 />
             )}

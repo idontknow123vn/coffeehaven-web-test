@@ -55,4 +55,23 @@ const addBranchManager = async (managerData: any) => {
     }
 }
 
-export { getBranches, createBranch, addBranchManager };
+// Tạo mới menu item (dùng cho ModalAddMenuItem)
+const createMenuItem = async (formData: FormData) => {
+    try {
+        const result = await headOffice(`/create-product`, {
+            method: "POST",
+            headers: {
+                // KHÔNG set Content-Type, axios sẽ tự động set boundary cho multipart/form-data
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: formData,
+        });
+        return result;
+    } catch (error) {
+        console.error("Error creating menu item:", error);
+        throw error;
+    }
+};
+
+export { getBranches, createBranch, addBranchManager, createMenuItem };

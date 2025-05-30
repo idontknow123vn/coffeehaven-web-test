@@ -15,5 +15,6 @@ const manager = createAxiosInstance('api/manager');
 const staff = createAxiosInstance('api/employee');
 const headOffice = createAxiosInstance('api/head-office');
 const order = createAxiosInstance('api/order');
+const category = createAxiosInstance('api/categories');
 
-export { identity, menuItems, manager, staff, headOffice, order };
+export { identity, menuItems, manager, staff, headOffice, order, category };
