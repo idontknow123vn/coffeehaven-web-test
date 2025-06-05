@@ -16,7 +16,10 @@ import Shift from "./pages/branch_manager/Shift";
 import BranchDetailsPage from "./pages/branch_manager/BranchDetail";
 import RevenueSum from "./pages/branch_manager/RevenueSum";
 import NotFound from "./pages/NotFound";
-import LogoutButton from "./components/LogoutButton";
+import Profile from "./pages/branch_manager/Profile";
+import Overall from "./pages/head_office/Overall";
+import DiscountPage from "./pages/head_office/Discount";
+import DiscountInBranch from "./pages/branch_manager/DiscountInBranch";
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -34,10 +37,7 @@ function App() {
                             <ProtectedRoute allowedRoles={['Head_Office']}>
                                 <div className="flex">
                                     <Sidebar />
-                                    <div className="flex-1 p-6">
-                                        <h2 className="text-2xl">Head Office Dashboard</h2>
-                                        <LogoutButton />
-                                    </div>
+                                    <Overall />
                                 </div>
                                 {/* <RevenueSum /> */}
                             </ProtectedRoute>
@@ -65,6 +65,29 @@ function App() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route
+                        path="/head-office/discounts"
+                        element={
+                            <ProtectedRoute allowedRoles={['Head_Office']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <DiscountPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/head-office/profile"
+                        element={
+                            <ProtectedRoute allowedRoles={['Head_Office']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <Profile />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+
                     
                     {/* Manager Routes */}
                     <Route
@@ -107,6 +130,28 @@ function App() {
                                 <div className="flex">
                                     <Sidebar />
                                     <Shift />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <Profile />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/branch-manager/discounts"
+                        element={
+                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <DiscountInBranch />
                                 </div>
                             </ProtectedRoute>
                         }

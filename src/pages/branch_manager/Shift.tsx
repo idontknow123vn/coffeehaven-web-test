@@ -7,6 +7,25 @@ const ShiftPage: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [shiftType, setShiftType] = useState<string>("");
     const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
+    // State cho ngày được chọn để xem tuần (mặc định là hôm nay)
+    const [currentDate, setCurrentDate] = useState<string>(new Date().toISOString().slice(0, 10));
+    // Format ngày dạng yyyy-mm-dd
+    const formatDate = (d: Date) => d.toISOString().slice(0, 10);
+    // Hàm lấy danh sách ngày trong tuần (CN -> T7, CN là đầu tuần)
+    function getWeekDates(date: Date): Date[] {
+        const day = date.getDay(); // 0 (CN) -> 6 (T7)
+        const diffToSunday = -day; // CN là đầu tuần
+        const sunday = new Date(date);
+        sunday.setDate(date.getDate() + diffToSunday);
+        return Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(sunday);
+            d.setDate(sunday.getDate() + i);
+            return d;
+        });
+    }
+    // Lấy các ngày trong tuần hiện tại dựa trên currentDate
+    const weekDates = getWeekDates(new Date(currentDate));
+
     // Định nghĩa type cho dữ liệu phân ca từ backend
     interface ShiftAssignment {
         employeeId: number;
@@ -19,7 +38,6 @@ const ShiftPage: React.FC = () => {
     // State lưu dữ liệu phân ca thực tế từ backend
     const [shiftAssignments, setShiftAssignments] = useState<ShiftAssignment[]>([]);
     // Format ngày dạng yyyy-mm-dd
-    const formatDate = (d: Date) => d.toISOString().slice(0, 10);
     // State tuần hiện tại (lấy ngày đầu tuần)
     const weekStart = (() => {
         const monday = getWeekDates(new Date())[0];
@@ -47,10 +65,10 @@ const ShiftPage: React.FC = () => {
 
     // Lấy dữ liệu phân ca từ backend khi load hoặc đổi tuần
     useEffect(() => {
-        getShiftByBranchInWeek(branchId, weekStart)
+        getShiftByBranchInWeek(branchId, currentDate)
             .then(res => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
-    }, [weekStart]);
+    }, [currentDate, branchId]);
 
     // Lấy danh sách nhân viên không phải manager khi mở modal phân ca
     useEffect(() => {
@@ -64,21 +82,6 @@ const ShiftPage: React.FC = () => {
                 .catch(() => setEmployees([]));
         }
     }, [showAddModal, branchId]);
-
-    // Hàm lấy danh sách ngày trong tuần (thứ 2 -> CN)
-    function getWeekDates(date: Date): Date[] {
-        const day = date.getDay(); // 0 (CN) -> 6 (T7)
-        const diffToMonday = (day === 0 ? -6 : 1) - day;
-        const monday = new Date(date);
-        monday.setDate(date.getDate() + diffToMonday);
-        return Array.from({ length: 7 }, (_, i) => {
-            const d = new Date(monday);
-            d.setDate(monday.getDate() + i);
-            return d;
-        });
-    }
-    // Lấy các ngày trong tuần hiện tại dựa trên weekStart
-    const weekDates = getWeekDates(new Date(weekStart));
 
     // Hàm lấy danh sách nhân viên cho ca/ngày từ shiftAssignments
     const getEmployeesForCell = (date: string, shiftId: number) => {
@@ -111,7 +114,7 @@ const ShiftPage: React.FC = () => {
             added.map(empId => updateEmployeeShift(empId, "", "", editCell.shiftId, editCell.date))
         );
         // Sau khi lưu, reload lại dữ liệu phân ca tuần
-        getShiftByBranchInWeek(branchId, weekStart)
+        getShiftByBranchInWeek(branchId, currentDate)
             .then(res => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
         setEditCell(null);
@@ -128,7 +131,7 @@ const ShiftPage: React.FC = () => {
             )
         );
         // Sau khi thêm, reload lại dữ liệu phân ca tuần
-        getShiftByBranchInWeek(branchId, weekStart)
+        getShiftByBranchInWeek(branchId, currentDate)
             .then(res => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
         setShowAddModal(false);
@@ -167,7 +170,7 @@ const ShiftPage: React.FC = () => {
             editRow.newShiftId,
             editRow.newDate
         );
-        getShiftByBranchInWeek(branchId, weekStart)
+        getShiftByBranchInWeek(branchId, currentDate)
             .then(res => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
         setEditRow(null);
@@ -178,7 +181,7 @@ const ShiftPage: React.FC = () => {
         const confirm = window.confirm(`Bạn có chắc chắn muốn xóa phân ca của ${assignment.employeeName} - ${assignment.shiftInfo || assignment.shiftId} - ngày ${assignment.shiftDate}?`);
         if (!confirm) return;
         await deleteEmployeeShift(assignment.employeeId, assignment.shiftId, assignment.shiftDate);
-        getShiftByBranchInWeek(branchId, weekStart)
+        getShiftByBranchInWeek(branchId, currentDate)
             .then(res => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
     };

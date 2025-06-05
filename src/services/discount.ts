@@ -1,8 +1,8 @@
-import { staff } from "../utils/request";
+import { discount } from "../utils/request";
 
-const getProfile = async () => {
+const getDiscountToday = async (branchId: number) => {
     try {
-        const response = await staff.get(`/profile`, {
+        const response = await discount.get(`/today?branchid=${branchId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
@@ -11,26 +11,25 @@ const getProfile = async () => {
         });
         return response.data;
     } catch (error: any) {
-        console.error("Error fetching profile:", error);
+        console.error("Error fetching today's discount:", error);
         throw error;
     }
 }
 
-const getStaffShifts = async (employeeId: number, date: string) => {
+const getDiscountById = async (discountId: number) => {
     try {
-        const response = await staff.get(`/shift/${employeeId}/date/${date}`, {
+        const response = await discount.get(`/${discountId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
                 "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-            }
+            },
         });
         return response.data;
-    }
-    catch (error: any) {
-        console.error("Error fetching staff shifts:", error);
+    } catch (error: any) {
+        console.error("Error fetching discount by ID:", error);
         throw error;
     }
 }
 
-export { getProfile, getStaffShifts };
+export { getDiscountToday, getDiscountById };

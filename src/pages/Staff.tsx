@@ -6,6 +6,10 @@ import { BsCalendarCheck } from 'react-icons/bs';
 import { getMenuItemsByBranch } from '../services/menu-items';
 import { useAuth } from '../contexts/AuthContext';
 import { createOrder, getOrderByIdBranch } from '../services/staff_order';
+import LogoutButton from '../components/LogoutButton';
+import ViewPreparingOrder from "./staff/ViewPreparingOrder";
+import Profile from './branch_manager/Profile';
+import StaffShift from './staff/StaffShift';
 
 interface OrderItem {
   id: number;
@@ -27,13 +31,14 @@ interface MenuItem {
   name: string;
   price: number;
   img: string;
+  available: boolean;
   category: 'coffee' | 'snack' | 'juice' | 'tea';
 }
 
 const Staff: React.FC = () => {
   const [order, setOrder] = useState<OrderItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<0 | 1 | 2 | 3 | 4>(0);
-  const [activeScreen, setActiveScreen] = useState<'order' | 'invoice' | 'schedule' | 'account'>('order');
+  const [activeScreen, setActiveScreen] = useState<'order' | 'invoice' | 'schedule' | 'account' | 'preparing' | 'myshift'>('order');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -46,6 +51,7 @@ const Staff: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const { id: branchId } = useAuth();
+  const { userId: userId } = useAuth();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -264,7 +270,7 @@ const Staff: React.FC = () => {
             <MdShoppingCart size={24} />
             Đơn hàng
           </button>
-          <button
+          {/* <button
             onClick={() => setActiveScreen('schedule')}
             style={{
               padding: '12px 20px',
@@ -296,6 +302,39 @@ const Staff: React.FC = () => {
           >
             <BsCalendarCheck size={24} />
             Ca làm việc
+          </button> */}
+          <button
+            onClick={() => setActiveScreen('myshift')}
+            style={{
+              padding: '12px 20px',
+              background: activeScreen === 'myshift' ? '#8B4513' : 'transparent',
+              border: 'none',
+              borderRadius: '8px',
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontFamily: 'Roboto, sans-serif',
+              fontWeight: 'bold',
+              textAlign: 'left',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+            onMouseOver={(e) => {
+              if (activeScreen !== 'myshift') {
+                e.currentTarget.style.background = '#FFA07A';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (activeScreen !== 'myshift') {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
+          >
+            <BsCalendarCheck size={24} />
+            Lịch của tôi
           </button>
           <button
             onClick={() => setActiveScreen('account')}
@@ -330,6 +369,43 @@ const Staff: React.FC = () => {
             <MdPerson size={24} />
             Tài khoản
           </button>
+          <button
+            onClick={() => setActiveScreen('preparing')}
+            style={{
+              padding: '12px 20px',
+              background: activeScreen === 'preparing' ? '#8B4513' : 'transparent',
+              border: 'none',
+              borderRadius: '8px',
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontFamily: 'Roboto, sans-serif',
+              fontWeight: 'bold',
+              textAlign: 'left',
+              transition: 'all 0.3s ease',
+              outline: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+            onMouseOver={(e) => {
+              if (activeScreen !== 'preparing') {
+                e.currentTarget.style.background = '#FFA07A';
+              }
+            }}
+            onMouseOut={(e) => {
+              if (activeScreen !== 'preparing') {
+                e.currentTarget.style.background = 'transparent';
+              }
+            }}
+          >
+            <MdShoppingCart size={24} />
+            Đơn đang chuẩn bị
+          </button>
+        </div>
+        {/* Logout Button */}
+        <div style={{ marginTop: 'auto', padding: '10px 0' }}>
+          <LogoutButton />
         </div>
       </div>
 
@@ -419,6 +495,7 @@ const Staff: React.FC = () => {
                     price={product.price}
                     img={product.img}
                     category={product.category}
+                    available={product.available}
                     onAddToOrder={addToOrder}
                   />
                 ))}
@@ -875,6 +952,12 @@ const Staff: React.FC = () => {
               </div>
             )}
           </div>
+        ) : activeScreen === 'preparing' ? (
+          <ViewPreparingOrder />
+        ) : activeScreen === 'account' ? (
+          <Profile />
+        ) : activeScreen === 'myshift' ? (
+          <StaffShift />
         ) : (
           <div style={{ 
             flex: 1, 

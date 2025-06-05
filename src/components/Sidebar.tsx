@@ -25,6 +25,9 @@ const Sidebar: React.FC = () => {
         { name: "Chi nhánh", icon: "🏢", path: "/branches" },
         { name: "Nhân viên", icon: "👥", path: "/employees" },
         { name: "Phân ca", icon: "📅", path: "/shift" },
+        { name: "Mã giảm giá", icon: "💸", path: "/branch-manager/discounts" },
+        { name: "Thông tin cá nhân", icon: "👤", path: "/profile" },
+        // { name: "Đăng xuất", icon: "🚪", path: "/logout" },
     ];
 
     const headOfficeItems = [
@@ -33,6 +36,10 @@ const Sidebar: React.FC = () => {
         { name: "Đơn hàng", icon: "📦", path: "/head-office/orders" },
         { name: "Chi nhánh", icon: "🏢", path: "/head-office/branches" },
         { name: "Nhân sự", icon: "👥", path: "/head-office/employees" },
+        // { name: "Phân ca", icon: "📅", path: "/head-office/shift" },
+        { name: "Mã giảm giá", icon: "💸", path: "/head-office/discounts" },
+        // { name: "Doanh thu", icon: "💰", path: "/head-office/revenue" },
+        { name: "Thông tin cá nhân", icon: "👤", path: "/head-office/profile" },
     ];
 
     const menuItems =

@@ -3,16 +3,9 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getMenuItems, getMenuItemCategories } from "../../services/menu-items";
 import { createMenuItem } from "../../services/head-office";
 import ModalAddMenuItem from "../../components/ModalAddItem";
+import ModalUpdateMenuItem from "../../components/ModalUpdateItem";
 import LogoutButton from "../../components/LogoutButton";
-
-type MenuItem = {
-    id: number;
-    name: string;
-    category: string;
-    price: number;
-    orders?: number;
-    available?: boolean;
-};
+import type { MenuItem } from "../../utils/MenuItem";
 
 const MenuItemPage: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -22,8 +15,11 @@ const MenuItemPage: React.FC = () => {
     const [totalPages, setTotalPages] = useState<number>(0);
     const [categoryId, setCategoryId] = useState<number>(0);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
     const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
     const [adding, setAdding] = useState<number | null>(null); // id món đang thêm
+    const [hoveredImage, setHoveredImage] = useState<string | null>(null);
 
     const fetchMenuItems = useCallback(async () => {
         try {
@@ -81,8 +77,7 @@ const MenuItemPage: React.FC = () => {
                         <th className="p-2 text-left">Tên món</th>
                         <th className="p-2 text-left">Danh mục</th>
                         <th className="p-2 text-left">Giá</th>
-                        <th className="p-2 text-left">Lượt đặt</th>
-                        <th className="p-2 text-left">Trạng thái</th>
+                        <th className="p-2 text-left"></th>
                         <th className="p-2 text-left"></th>
                     </tr>
                 </thead>
@@ -92,7 +87,7 @@ const MenuItemPage: React.FC = () => {
                             <td className="p-2">{item.name}</td>
                             <td className="p-2">{item.category}</td>
                             <td className="p-2">{item.price}</td>
-                            <td className="p-2">{item.orders ?? "-"}</td>
+                            {/* <td className="p-2">{item.orders ?? "-"}</td>
                             <td className="p-2">
                                 <span
                                     className={
@@ -105,8 +100,50 @@ const MenuItemPage: React.FC = () => {
                                         ? "Còn hàng"
                                         : "Hết hàng"}
                                 </span>
+                            </td> */}
+                            <td className="p-2 relative">
+                                <span
+                                    onMouseEnter={() => setHoveredImage(item.img || null)}
+                                    onMouseLeave={() => setHoveredImage(null)}
+                                    style={{ cursor: item.img ? 'pointer' : 'default', position: 'relative' }}
+                                >
+                                    👁️
+                                    {hoveredImage && hoveredImage === item.img && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                left: '120%', // Hiển thị bên phải biểu tượng con mắt
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                zIndex: 100,
+                                                background: 'white',
+                                                border: '1px solid #ccc',
+                                                borderRadius: 8,
+                                                padding: 8,
+                                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                                            }}
+                                        >
+                                            <img
+                                                src={item.img}
+                                                alt={item.name}
+                                                style={{ maxWidth: 180, maxHeight: 180, display: 'block' }}
+                                            />
+                                        </div>
+                                    )}
+                                </span>
                             </td>
-                            <td className="p-2">✏️</td>
+                            <td className="p-2">
+                                <button
+                                    onClick={() => {
+                                        setSelectedMenuItem(item);
+                                        setShowUpdateModal(true);
+                                    }}
+                                    className="hover:text-orange-500"
+                                    title="Chỉnh sửa"
+                                >
+                                    ✏️
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -154,6 +191,19 @@ const MenuItemPage: React.FC = () => {
                         setPage(0);
                         setCategoryId(0); // Reset category filter khi LƯU thành công
                         // Không cần fetchMenuItems ở đây, useEffect sẽ tự động chạy lại đúng 1 lần
+                    }}
+                />
+            )}
+
+            {/* Modal cập nhật món */}
+            {showUpdateModal && selectedMenuItem && (
+                <ModalUpdateMenuItem
+                    isOpen={showUpdateModal}
+                    onClose={() => setShowUpdateModal(false)}
+                    menuItem={selectedMenuItem}
+                    onSave={() => {
+                        setShowUpdateModal(false);
+                        fetchMenuItems();
                     }}
                 />
             )}

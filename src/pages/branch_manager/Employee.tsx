@@ -52,8 +52,9 @@ const EmployeesPage: React.FC = () => {
                 <th className="p-2 text-left">Tên nhân viên</th>
                 <th className="p-2 text-left">Vai trò</th>
                 <th className="p-2 text-left">Email</th>
-                {/* <th className="p-2 text-left">Số đơn</th>
-                <th className="p-2 text-left">Trạng thái</th> */}
+                <th className="p-2 text-left">Số điện thoại</th>
+                {/* <th className="p-2 text-left">Số đơn</th>*/}
+                <th className="p-2 text-left">Trạng thái</th> 
                 <th className="p-2 text-left"></th>
               </tr>
             </thead>
@@ -63,9 +64,10 @@ const EmployeesPage: React.FC = () => {
                   <td className="p-2">{employee.name}</td>
                   <td className="p-2">{employee.role}</td>
                   <td className="p-2">{employee.email}</td>
-                  <td className="p-2">{employee.orders}</td>
+                  <td className="p-2">{employee.phoneNumber}</td>
+                  {/* <td className="p-2">{employee.orders}</td> */}
                   <td className="p-2">
-                    <span className={employee.status === 'Đang làm' ? 'text-green-500' : 'text-red-500'}>
+                    <span className={employee.status === 'Active' ? 'text-green-500' : 'text-red-500'}>
                       {employee.status}
                     </span>
                   </td>

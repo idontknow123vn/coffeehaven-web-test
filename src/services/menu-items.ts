@@ -19,5 +19,10 @@ const getMenuItemCategories = async () => {
   return response.data;
 };
 
+const getMenuItemById = async (id: number) => {
+  const response = await menuItems.get(`/${id}`);
+  return response.data;
+}
 
-export { getMenuItemsByBranch, getMenuItems, getMenuItemCategories };
+
+export { getMenuItemsByBranch, getMenuItems, getMenuItemCategories, getMenuItemById };

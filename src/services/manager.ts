@@ -7,7 +7,7 @@ const getBranchDetails = async (branchId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -15,7 +15,7 @@ const getBranchDetails = async (branchId: number) => {
         console.error("Error fetching branch details:", error);
         throw error;
     }
-}
+};
 
 const getEmployeesByBranch = async (branchId: number) => {
     try {
@@ -24,9 +24,8 @@ const getEmployeesByBranch = async (branchId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
-            
         });
         return result;
     } catch (error: any) {
@@ -36,27 +35,37 @@ const getEmployeesByBranch = async (branchId: number) => {
     }
 };
 
-const getMenuItemsNotInBranch = async (branchId: number, categoryId = 0, page = 0, size = 10) => {
+const getMenuItemsNotInBranch = async (
+    branchId: number,
+    categoryId = 0,
+    page = 0,
+    size = 10
+) => {
     const queryParams = new URLSearchParams({
         categoryId: categoryId.toString(),
         page: page.toString(),
         size: size.toString(),
     }).toString();
     try {
-        const result = await manager(`/branch/${branchId}/menuitems-not-in-branch?${queryParams}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-        });
+        const result = await manager(
+            `/branch/${branchId}/menuitems-not-in-branch?${queryParams}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem(
+                        "accessToken"
+                    )}`,
+                },
+            }
+        );
         return result;
     } catch (error: any) {
         console.error("Error fetching employees not in branch:", error);
         throw error;
     }
-}
+};
 
 const addItemToBranch = async (branchId: number, itemId: number) => {
     try {
@@ -65,7 +74,7 @@ const addItemToBranch = async (branchId: number, itemId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 branchId: branchId,
@@ -77,33 +86,68 @@ const addItemToBranch = async (branchId: number, itemId: number) => {
         console.error("Error adding item to branch:", error);
         throw error;
     }
-}
+};
 
-const getShiftByBranchInWeek = async (branchId: number, date: string) => {
+const changeItemStatus = async (
+    branchId: number,
+    itemId: number,
+    status: boolean
+) => {
     try {
-        const result = await manager(`/branch-shifts/${branchId}/week/${date}`, {
-            method: "GET",
+        const result = await manager(`/change-item-status`, {
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
+            data: JSON.stringify({
+                branchId: branchId,
+                productId: itemId,
+                availability: status,
+            }),
         });
+        return result;
+    } catch (error: any) {
+        console.error("Error changing item status:", error);
+        throw error;
+    }
+};
+
+const getShiftByBranchInWeek = async (branchId: number, date: string) => {
+    try {
+        const result = await manager(
+            `/branch-shifts/${branchId}/week/${date}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem(
+                        "accessToken"
+                    )}`,
+                },
+            }
+        );
         return result;
     } catch (error: any) {
         console.error("Error fetching shifts by branch in week:", error);
         throw error;
     }
-}
+};
 
-const addEmployeeToShift = async (shiftId: number, employeeId: number, date: string) => {
+const addEmployeeToShift = async (
+    shiftId: number,
+    employeeId: number,
+    date: string
+) => {
     try {
         const result = await manager(`/assign-shift`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 shiftId: shiftId,
@@ -116,30 +160,35 @@ const addEmployeeToShift = async (shiftId: number, employeeId: number, date: str
         console.error("Error adding employee to shift:", error);
         throw error;
     }
-}
+};
 
 const getEmployeesNotManager = async (branchId: number) => {
     try {
-        const result = await manager(`/employees/${branchId}/exclude-managers`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-        });
+        const result = await manager(
+            `/employees/${branchId}/exclude-managers`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem(
+                        "accessToken"
+                    )}`,
+                },
+            }
+        );
         return result;
     } catch (error: any) {
         console.error("Error fetching employees not manager:", error);
         throw error;
     }
-}
+};
 
 const updateEmployeeShift = async (
-    employeeId: number, 
-    oldShiftId: string, 
+    employeeId: number,
+    oldShiftId: string,
     oldDate: string,
-    newShiftId: number, 
+    newShiftId: number,
     newDate: string
 ) => {
     try {
@@ -148,7 +197,7 @@ const updateEmployeeShift = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 employeeId: employeeId,
@@ -163,16 +212,20 @@ const updateEmployeeShift = async (
         console.error("Error updating employee shift:", error);
         throw error;
     }
-}
+};
 
-const deleteEmployeeShift = async (employeeId: number, shiftId: number, date: string) => {
+const deleteEmployeeShift = async (
+    employeeId: number,
+    shiftId: number,
+    date: string
+) => {
     try {
         const result = await manager(`/delete-employee-shift`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 employeeId: employeeId,
@@ -185,7 +238,7 @@ const deleteEmployeeShift = async (employeeId: number, shiftId: number, date: st
         console.error("Error deleting employee shift:", error);
         throw error;
     }
-}
+};
 
 const getWeeklyRevenueByBranch = async (branchId: number, date: string) => {
     try {
@@ -194,7 +247,7 @@ const getWeeklyRevenueByBranch = async (branchId: number, date: string) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -202,24 +255,33 @@ const getWeeklyRevenueByBranch = async (branchId: number, date: string) => {
         console.error("Error fetching weekly revenue by branch:", error);
         throw error;
     }
-}
+};
 
-const getMonthlyRevenueByBranch = async (branchId: number, month: number, year: number) => {
+const getMonthlyRevenueByBranch = async (
+    branchId: number,
+    month: number,
+    year: number
+) => {
     try {
-        const result = await manager(`/branch/${branchId}/statistics/${year}/${month}`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-        });
+        const result = await manager(
+            `/branch/${branchId}/statistics/${year}/${month}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem(
+                        "accessToken"
+                    )}`,
+                },
+            }
+        );
         return result;
     } catch (error: any) {
         console.error("Error fetching monthly revenue by branch:", error);
         throw error;
     }
-}
+};
 
 const addEmployee = async (employeeData: any) => {
     try {
@@ -228,7 +290,7 @@ const addEmployee = async (employeeData: any) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify(employeeData),
         });
@@ -237,8 +299,38 @@ const addEmployee = async (employeeData: any) => {
         console.error("Error adding employee:", error);
         throw error;
     }
-}
+};
 
-export {getBranchDetails, getEmployeesByBranch, getMenuItemsNotInBranch, addItemToBranch, getShiftByBranchInWeek, addEmployeeToShift, 
-    getEmployeesNotManager, updateEmployeeShift, deleteEmployeeShift, getWeeklyRevenueByBranch, getMonthlyRevenueByBranch,
-    addEmployee};
+const getBranchDiscounts = async (branchId: number) => {
+    try {
+        const result = await manager(`/branch/${branchId}/discounts`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching branch discounts:", error);
+        throw error;
+    }
+};
+
+export {
+    getBranchDetails,
+    getEmployeesByBranch,
+    getMenuItemsNotInBranch,
+    addItemToBranch,
+    getShiftByBranchInWeek,
+    addEmployeeToShift,
+    getEmployeesNotManager,
+    updateEmployeeShift,
+    deleteEmployeeShift,
+    getWeeklyRevenueByBranch,
+    getMonthlyRevenueByBranch,
+    addEmployee,
+    changeItemStatus,
+    getBranchDiscounts,
+};

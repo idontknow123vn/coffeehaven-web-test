@@ -3,11 +3,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import {
     getMenuItemsByBranch,
 } from "../../services/menu-items";
-import { getMenuItemsNotInBranch, addItemToBranch } from "../../services/manager";
+import { getMenuItemsNotInBranch, addItemToBranch, changeItemStatus } from "../../services/manager";
 import LogoutButton from "../../components/LogoutButton";
 
 // Sửa lại type cho menuItems và allMenuItems để có thể có orders/available (nếu có)
-type MenuItem = { id: number; name: string; category: string; price: number; orders?: number; available?: boolean };
+type MenuItem = { id: number; name: string; category: string; price: number; orders?: number; available?: boolean; img?: string };
 
 const MenuPage: React.FC = () => {
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -19,6 +19,7 @@ const MenuPage: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
     const [adding, setAdding] = useState<number | null>(null); // id món đang thêm
+    const [hoveredImage, setHoveredImage] = useState<string | null>(null);
 
     // State cho modal phân trang và lọc category
     const [addModalPage, setAddModalPage] = useState(0);
@@ -93,6 +94,20 @@ const MenuPage: React.FC = () => {
         }
     };
 
+    const handleToggleStatus = async (item: MenuItem) => {
+        if (typeof branchId !== 'number') return;
+        const newStatus = !(item.available === true);
+        try {
+            await changeItemStatus(branchId, item.id, newStatus);
+            // Sau khi cập nhật, reload lại danh sách
+            const result = await getMenuItemsByBranch(branchId, page, pageSize, categoryId);
+            setMenuItems(result.data);
+            setTotalPages(result.totalPages);
+        } catch {
+            alert('Cập nhật trạng thái thất bại!');
+        }
+    };
+
     return (
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-4">
@@ -131,8 +146,8 @@ const MenuPage: React.FC = () => {
                         <th className="p-2 text-left">Tên món</th>
                         <th className="p-2 text-left">Danh mục</th>
                         <th className="p-2 text-left">Giá</th>
-                        <th className="p-2 text-left">Lượt đặt</th>
                         <th className="p-2 text-left">Trạng thái</th>
+                        <th className="p-2 text-left"></th>
                         <th className="p-2 text-left"></th>
                     </tr>
                 </thead>
@@ -142,7 +157,6 @@ const MenuPage: React.FC = () => {
                             <td className="p-2">{item.name}</td>
                             <td className="p-2">{item.category}</td>
                             <td className="p-2">{item.price}</td>
-                            <td className="p-2">{item.orders ?? "-"}</td>
                             <td className="p-2">
                                 <span
                                     className={
@@ -154,7 +168,46 @@ const MenuPage: React.FC = () => {
                                     {item.available === true ? "Còn hàng" : "Hết hàng"}
                                 </span>
                             </td>
-                            <td className="p-2">✏️</td>
+                            <td className="p-2 relative">
+                                <span
+                                    onMouseEnter={() => setHoveredImage(item.img || null)}
+                                    onMouseLeave={() => setHoveredImage(null)}
+                                    style={{ cursor: item.img ? 'pointer' : 'default', position: 'relative' }}
+                                >
+                                    👁️
+                                    {hoveredImage && hoveredImage === item.img && (
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                left: '120%',
+                                                top: '50%',
+                                                transform: 'translateY(-50%)',
+                                                zIndex: 100,
+                                                background: 'white',
+                                                border: '1px solid #ccc',
+                                                borderRadius: 8,
+                                                padding: 8,
+                                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                                            }}
+                                        >
+                                            <img
+                                                src={item.img}
+                                                alt={item.name}
+                                                style={{ maxWidth: 180, maxHeight: 180, display: 'block' }}
+                                            />
+                                        </div>
+                                    )}
+                                </span>
+                            </td>
+                            <td className="p-2">
+                                <button
+                                    onClick={() => handleToggleStatus(item)}
+                                    className="hover:text-orange-500"
+                                    title="Đổi trạng thái còn/hết hàng"
+                                >
+                                    ✏️
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

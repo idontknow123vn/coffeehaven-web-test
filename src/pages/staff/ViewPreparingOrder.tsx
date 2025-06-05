@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
-import { getOrdersByIdBranchAndDate } from "../services/staff_order";
-import LogoutButton from "../components/LogoutButton";
-import ModalOrderDetail from "../components/ModalOrderDetail";
-import type { Order } from "../utils/Order";
-
-
+import { useAuth } from "../../contexts/AuthContext";
+import { getOrdersByIdBranchAndDate } from "../../services/staff_order";
+import LogoutButton from "../../components/LogoutButton";
+import ModalOrderDetail from "../../components/ModalOrderDetail";
+import type { Order } from "../../utils/Order";
 
 interface OrderDetail {
     id: number;
@@ -15,7 +13,6 @@ interface OrderDetail {
     quantity: number;
 }
 
-// Định nghĩa type cho dữ liệu trả về từ API
 interface ApiOrder {
     orderId: number;
     branchId: number;
@@ -25,16 +22,13 @@ interface ApiOrder {
     customerInfo?: string;
 }
 
-const OrdersPage: React.FC = () => {
-    const [locationFilter, setLocationFilter] = useState<string>("Tất cả");
-    const [statusFilter, setStatusFilter] = useState<string>("Tất cả");
-    const [date, setDate] = useState<string>("");
-    const [searchTerm, setSearchTerm] = useState<string>("");
+const ViewPreparingOrder: React.FC = () => {
     const { id: branchId } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [orderDetail, setOrderDetail] = useState<OrderDetail[]>([]);
     const [showOrderModal, setShowOrderModal] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [date, setDate] = useState<string>("");
     const [page, setPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
     const [totalPages, setTotalPages] = useState<number>(1);
@@ -43,27 +37,10 @@ const OrdersPage: React.FC = () => {
         const fetchOrders = async () => {
             try {
                 if (branchId) {
-                    // Nếu date rỗng thì truyền 'all' cho API
                     const dateStr = date ? (date.includes("/") ? date.split("/").reverse().join("-") : date) : "all";
-                    const statusParam = statusFilter === "Tất cả" ? "all" :
-                        statusFilter === "Đang chờ" ? "Pending" :
-                        statusFilter === "Đang chuẩn bị" ? "Preparing" :
-                        statusFilter === "Đang giao" ? "Delivering" :
-                        statusFilter === "Đã giao" ? "Delivered" :
-                        statusFilter === "Đã hủy" ? "Cancelled" : statusFilter;
-                    const response = await getOrdersByIdBranchAndDate(branchId, dateStr, page, pageSize, statusParam);
-                    let apiOrders = response.data.data as ApiOrder[];
-                    // Lọc theo location nếu cần
-                    if (locationFilter === "Tài quầy") {
-                        apiOrders = apiOrders.filter(order => !order.customerInfo);
-                    }
-                    // Lọc theo searchTerm nếu có
-                    if (searchTerm.trim()) {
-                        apiOrders = apiOrders.filter(order =>
-                            order.orderId.toString().includes(searchTerm.trim())
-                        );
-                    }
-                    setOrders(apiOrders.map((order) => ({
+                    const response = await getOrdersByIdBranchAndDate(branchId, dateStr, page, pageSize, "Preparing");
+                    const apiOrders = response.data.data as ApiOrder[];
+                    setOrders(apiOrders.map(order => ({
                         id: order.orderId,
                         branchId: order.branchId,
                         status: order.status,
@@ -71,7 +48,6 @@ const OrdersPage: React.FC = () => {
                         createdAt: order.orderDate,
                         customerInfo: order.customerInfo,
                     })));
-                    // Lấy tổng số trang từ response nếu có
                     if (response.data.totalPages !== undefined) {
                         setTotalPages(response.data.totalPages);
                     } else {
@@ -79,24 +55,20 @@ const OrdersPage: React.FC = () => {
                     }
                 }
             } catch (error) {
-                console.error("Error fetching orders:", error);
+                console.error("Error fetching preparing orders:", error);
             }
         };
         fetchOrders();
-    }, [branchId, date, statusFilter, locationFilter, searchTerm, page, pageSize]);
+        const interval = setInterval(fetchOrders, 5 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, [branchId, date, page, pageSize]);
 
     // Hàm lấy chi tiết đơn hàng (giả sử có API getOrderDetailByOrderId)
     const handleShowOrderDetail = async (order: Order) => {
-        // TODO: Gọi API lấy chi tiết đơn hàng theo order.id
-        // const detail = await getOrderDetailByOrderId(order.id);
-        // setOrderDetail(detail);
-        // setSelectedOrder(order);
-        // setShowOrderModal(true);
-        // Tạm thời mock dữ liệu:
-        // setOrderDetail([
-        //     { id: 1, orderId: order.id, itemName: "Latte", price: 50000, quantity: 2 },
-        //     { id: 2, orderId: order.id, itemName: "Cappuccino", price: 40000, quantity: 1 },
-        // ]);
+        setOrderDetail([
+            { id: 1, orderId: order.id, itemName: "Latte", price: 50000, quantity: 2 },
+            { id: 2, orderId: order.id, itemName: "Cappuccino", price: 40000, quantity: 1 },
+        ]);
         setSelectedOrder(order);
         setShowOrderModal(true);
     };
@@ -105,36 +77,15 @@ const OrdersPage: React.FC = () => {
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">
-                    Quản lý đơn hàng
+                    Đơn hàng đang chuẩn bị
                 </h2>
                 <LogoutButton />
             </div>
-
             <div className="flex items-center space-x-4 mb-4">
-                <select
-                    value={locationFilter}
-                    onChange={(e) => setLocationFilter(e.target.value)}
-                    className="border rounded p-2"
-                >
-                    <option>Tất cả</option>
-                    <option>Tài quầy</option>
-                </select>
-                <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="border rounded p-2"
-                >
-                    <option>Tất cả</option>
-                    <option>Đang chờ</option>
-                    <option>Đang chuẩn bị</option>
-                    <option>Đang giao</option>
-                    <option>Đã giao</option>
-                    <option>Đã hủy</option>
-                </select>
                 <input
                     type="date"
                     value={date}
-                    onChange={(e) => setDate(e.target.value)}
+                    onChange={e => setDate(e.target.value)}
                     className="border rounded p-2"
                 />
                 {date && (
@@ -146,25 +97,16 @@ const OrdersPage: React.FC = () => {
                         X
                     </button>
                 )}
-                <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Tìm đơn"
-                    className="border rounded p-2"
-                />
             </div>
-
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="bg-gray-200">
                         <th className="p-2 text-left">Mã đơn</th>
                         <th className="p-2 text-left">Chi nhánh</th>
-                        <th className="p-2 text-left">Món</th>
-                        <th className="p-2 text-left">Giá</th>
+                        <th className="p-2 text-left">Tổng tiền</th>
                         <th className="p-2 text-left">Thời gian</th>
                         <th className="p-2 text-left">Trạng thái</th>
-                        <th className="p-2 text-left"></th>
+                        <th className="p-2 text-left">Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -172,26 +114,16 @@ const OrdersPage: React.FC = () => {
                         <tr key={index} className="border-b">
                             <td className="p-2">{order.id}</td>
                             <td className="p-2">{order.branchId}</td>
-                            <td className="p-2">a</td>
                             <td className="p-2">{order.totalPrice}</td>
                             <td className="p-2">{order.createdAt}</td>
                             <td className="p-2">
-                                <span
-                                    className={
-                                        order.status === "Preparing"
-                                            ? "text-yellow-500"
-                                            : "text-green-500"
-                                    }
-                                >
-                                    {order.status}
-                                </span>
+                                <span className="text-yellow-500">Đang chuẩn bị</span>
                             </td>
                             <td className="p-2 cursor-pointer" onClick={() => handleShowOrderDetail(order)}>👁️</td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-
             <div className="flex justify-center items-center gap-2 mt-4">
                 <button
                     onClick={() => setPage(p => Math.max(0, p - 1))}
@@ -220,7 +152,6 @@ const OrdersPage: React.FC = () => {
                     ))}
                 </select>
             </div>
-
             <ModalOrderDetail
                 isOpen={showOrderModal}
                 onClose={() => setShowOrderModal(false)}
@@ -229,4 +160,5 @@ const OrdersPage: React.FC = () => {
         </div>
     );
 };
-export default OrdersPage;
+
+export default ViewPreparingOrder;

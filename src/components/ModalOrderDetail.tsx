@@ -78,7 +78,7 @@ const ModalOrderDetail: React.FC<{
                         <label className="block text-sm font-medium">
                             Khách
                         </label>
-                        <p className="text-gray-700">Khách tại quầy</p>
+                        <p className="text-gray-700">{order.customer || "Khách tại quầy"}</p>
                     </div>
                     <div>
                         <label className="block text-sm font-medium">Món</label>

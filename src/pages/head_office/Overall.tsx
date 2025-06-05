@@ -9,10 +9,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
-import {
-    getWeeklyRevenueByBranch,
-    getMonthlyRevenueByBranch,
-} from "../../services/manager";
+import { getMonthlyRevenueByBranch, getBranches } from "../../services/head-office";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutButton from "../../components/LogoutButton";
 
@@ -25,35 +22,36 @@ ChartJS.register(
     Legend
 );
 
-const weekDays = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-];
 const dayOfWeekMap: Record<string, string> = {
-    Sunday: "CN",
     Monday: "Thứ 2",
     Tuesday: "Thứ 3",
     Wednesday: "Thứ 4",
     Thursday: "Thứ 5",
     Friday: "Thứ 6",
     Saturday: "Thứ 7",
+    Sunday: "CN",
 };
+
+const weekDays = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+];
 
 const RevenueSum: React.FC = () => {
     const { id: branchId } = useAuth();
-    const [weekRevenue, setWeekRevenue] = useState(0);
-    const [dailyRevenue, setDailyRevenue] = useState<
-        {
-            day: string;
-            value: number;
-            date: string;
-        }[]
-    >([]);
+    // const [weekRevenue, setWeekRevenue] = useState(0);
+    // const [dailyRevenue, setDailyRevenue] = useState<
+    //     {
+    //         day: string;
+    //         value: number;
+    //         date: string;
+    //     }[]
+    // >([]);
     // State cho doanh thu tháng
     const [selectedMonth, setSelectedMonth] = useState<number>(
         new Date().getMonth() + 1
@@ -64,58 +62,70 @@ const RevenueSum: React.FC = () => {
     const [monthRevenue, setMonthRevenue] = useState<number[]>([]); // doanh thu từng ngày trong tháng
     const [monthLabels, setMonthLabels] = useState<string[]>([]); // nhãn ngày
 
-    useEffect(() => {
-        const fetchRevenue = async () => {
-            if (!branchId) return;
-            // Lấy ngày đầu tuần (Chủ nhật)
-            const today = new Date();
-            const day = today.getDay(); // 0 = Sunday
-            const sunday = new Date(today);
-            sunday.setDate(today.getDate() - day); // Lùi về chủ nhật gần nhất
-            const dateStr = sunday.toISOString().slice(0, 10);
-            try {
-                const res = await getWeeklyRevenueByBranch(branchId, dateStr);
-                setDailyRevenue(
-                    weekDays.map((dow) => {
-                        const found = (
-                            res.data.data as Array<{
-                                dayOfWeek: string;
-                                date: string;
-                                totalRevenue: number;
-                            }>
-                        ).find((d) => d.dayOfWeek === dow);
-                        return {
-                            day: dayOfWeekMap[dow],
-                            value: found ? found.totalRevenue : 0,
-                            date: found ? found.date : "",
-                        };
-                    })
-                );
-                setWeekRevenue(
-                    (res.data.data as Array<{ totalRevenue: number }>).reduce(
-                        (sum, d) => sum + d.totalRevenue,
-                        0
-                    )
-                );
-            } catch {
-                setDailyRevenue([]);
-                setWeekRevenue(0);
-            }
-        };
-        fetchRevenue();
-    }, [branchId]);
+    // State cho chi nhánh
+    const [branches, setBranches] = useState<{ id: number; name: string }[]>([]);
+    const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
 
+    // Lấy danh sách chi nhánh khi mount
+    useEffect(() => {
+        getBranches()
+            .then(res => {
+                setBranches(res.data.data);
+                if (res.data.data.length > 0) {
+                    setSelectedBranch(res.data.data[0].id);
+                }
+            })
+            .catch(() => setBranches([]));
+    }, []);
+
+    // useEffect(() => {
+    //     const fetchRevenue = async () => {
+    //         if (!branchId) return;
+    //         // Lấy ngày hiện tại (không cần lấy ngày đầu tuần)
+    //         const today = new Date();
+    //         const dateStr = today.toISOString().slice(0, 10);
+    //         try {
+    //             const res = await getWeeklyRevenueByBranch(branchId, dateStr);
+    //             setDailyRevenue(
+    //                 weekDays.map((dow) => {
+    //                     const found = (
+    //                         res.data.data as Array<{
+    //                             dayOfWeek: string;
+    //                             date: string;
+    //                             totalRevenue: number;
+    //                         }>
+    //                     ).find((d) => d.dayOfWeek === dow);
+    //                     return {
+    //                         day: dayOfWeekMap[dow],
+    //                         value: found ? found.totalRevenue : 0,
+    //                         date: found ? found.date : "",
+    //                     };
+    //                 })
+    //             );
+    //             setWeekRevenue(
+    //                 (res.data.data as Array<{ totalRevenue: number }>).reduce(
+    //                     (sum, d) => sum + d.totalRevenue,
+    //                     0
+    //                 )
+    //             );
+    //         } catch {
+    //             setDailyRevenue([]);
+    //             setWeekRevenue(0);
+    //         }
+    //     };
+    //     fetchRevenue();
+    // }, [branchId]);
+
+    // Sửa fetchMonthRevenue để dùng selectedBranch thay vì branchId
     useEffect(() => {
         const fetchMonthRevenue = async () => {
-            if (!branchId) return;
-            // Gọi API lấy doanh thu tháng, ví dụ: getMonthlyRevenueByBranch(branchId, month, year)
+            if (!selectedBranch) return;
             try {
                 const res = await getMonthlyRevenueByBranch(
-                    branchId,
+                    selectedBranch,
                     selectedMonth,
                     selectedYear
                 );
-                // res.data.data = [{ date: '2025-05-01', totalRevenue: 123456 }, ...]
                 const daysInMonth = new Date(
                     selectedYear,
                     selectedMonth,
@@ -145,20 +155,20 @@ const RevenueSum: React.FC = () => {
             }
         };
         fetchMonthRevenue();
-    }, [branchId, selectedMonth, selectedYear]);
+    }, [selectedBranch, selectedMonth, selectedYear]);
 
     // Chart data
-    const chartData = {
-        labels: dailyRevenue.map((d) => d.day),
-        datasets: [
-            {
-                label: "Doanh thu (VNĐ)",
-                data: dailyRevenue.map((d) => d.value),
-                backgroundColor: "#fb923c",
-                borderRadius: 6,
-            },
-        ],
-    };
+    // const chartData = {
+    //     labels: dailyRevenue.map((d) => d.day),
+    //     datasets: [
+    //         {
+    //             label: "Doanh thu (VNĐ)",
+    //             data: dailyRevenue.map((d) => d.value),
+    //             backgroundColor: "#fb923c",
+    //             borderRadius: 6,
+    //         },
+    //     ],
+    // };
 
     const chartOptions = {
         responsive: true,
@@ -191,7 +201,7 @@ const RevenueSum: React.FC = () => {
                 <LogoutButton />
             </div>
 
-            <div className="mb-10">
+            {/* <div className="mb-10">
                 <h3 className="text-xl font-semibold mb-4 text-gray-700">
                     Doanh thu tuần này
                 </h3>
@@ -218,7 +228,7 @@ const RevenueSum: React.FC = () => {
                         className="w-full h-full"
                     />
                 </div>
-            </div>
+            </div> */}
 
             <div className="bg-white rounded-lg shadow p-6 h-72">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">
@@ -226,6 +236,15 @@ const RevenueSum: React.FC = () => {
                         Biểu đồ doanh thu theo ngày trong tháng
                     </h4>
                     <div className="flex gap-2">
+                        <select
+                            className="border rounded px-2 py-1"
+                            value={selectedBranch ?? ''}
+                            onChange={e => setSelectedBranch(Number(e.target.value))}
+                        >
+                            {branches.map(b => (
+                                <option key={b.id} value={b.id}>{b.name}</option>
+                            ))}
+                        </select>
                         <select
                             className="border rounded px-2 py-1"
                             value={selectedMonth}
