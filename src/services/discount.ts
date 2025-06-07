@@ -2,7 +2,7 @@ import { discount } from "../utils/request";
 
 const getDiscountToday = async (branchId: number) => {
     try {
-        const response = await discount.get(`/today?branchid=${branchId}`, {
+        const response = await discount.get(`/today?branchId=${branchId}`, {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",

@@ -7,9 +7,10 @@ interface ProductProps {
   img: string;
   category?: string;
   onAddToOrder: (product: { id: number; name: string; price: number; img: string }) => void;
+  originalPrice?: number; // Thêm prop này
 }
 
-const Product: React.FC<ProductProps> = ({ id, name, price, img, category, onAddToOrder }) => {
+const Product: React.FC<ProductProps> = ({ id, name, price, img, category, onAddToOrder, originalPrice }) => {
   return (
     <div style={{ 
       background: '#FFFFFF',
@@ -58,15 +59,26 @@ const Product: React.FC<ProductProps> = ({ id, name, price, img, category, onAdd
         }}>
           {name}
         </h3>
-        <p style={{
-          margin: '0',
-          fontSize: '14px',
-          color: '#FFA07A',
-          fontFamily: 'Roboto, sans-serif'
-        }}>
-          {price.toLocaleString()} VND
-        </p>
-        
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{
+            fontSize: '14px',
+            color: '#FFA07A',
+            fontFamily: 'Roboto, sans-serif',
+            fontWeight: 'bold'
+          }}>
+            {price.toLocaleString()} VND
+          </span>
+          {originalPrice && originalPrice > price && (
+            <span style={{
+              textDecoration: 'line-through',
+              color: '#b0b0b0',
+              fontSize: '13px',
+              marginRight: 6
+            }}>
+              {originalPrice.toLocaleString()} VND
+            </span>
+          )}
+        </div>
       </div>
       <button
         onClick={() => onAddToOrder({ id, name, price, img })}
@@ -102,4 +114,4 @@ const Product: React.FC<ProductProps> = ({ id, name, price, img, category, onAdd
   );
 };
 
-export default Product; 
+export default Product;

@@ -318,6 +318,35 @@ const getBranchDiscounts = async (branchId: number) => {
     }
 };
 
+const reassignShift = async (
+    oldEmployeeId: number,
+    newEmployeeId: number,
+    shiftId: number,
+    date: string
+) => {
+    try {
+        const result = await manager(`/reassign-shift`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                oldEmployeeId: oldEmployeeId,
+                newEmployeeId: newEmployeeId,
+                shiftId: shiftId,
+                shiftDate: date,
+            }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error reassigning shift:", error);
+        throw error;
+    }
+}
+
+
 export {
     getBranchDetails,
     getEmployeesByBranch,
@@ -333,4 +362,5 @@ export {
     addEmployee,
     changeItemStatus,
     getBranchDiscounts,
+    reassignShift
 };

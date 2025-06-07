@@ -10,6 +10,8 @@ import LogoutButton from '../components/LogoutButton';
 import ViewPreparingOrder from "./staff/ViewPreparingOrder";
 import Profile from './branch_manager/Profile';
 import StaffShift from './staff/StaffShift';
+import { getDiscountToday } from "../services/discount";
+import type { Discount } from "../utils/Discount";
 
 interface OrderItem {
   id: number;
@@ -50,6 +52,7 @@ const Staff: React.FC = () => {
   const [pageSize, setPageSize] = useState<number>(10);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [discountToday, setDiscountToday] = useState<Discount | null>(null);
   const { id: branchId } = useAuth();
   const { userId: userId } = useAuth();
 
@@ -95,17 +98,32 @@ const Staff: React.FC = () => {
 
   const total = order.reduce((sum, item) => sum + item.price * item.qty, 0);
 
+  // Hàm tính tổng tiền đã giảm cho hóa đơn nếu discountType là ORDER
+  const getOrderDiscountedTotal = (): number => {
+    if (
+      discountToday &&
+      discountToday.discountType === 'ORDER' &&
+      typeof discountToday.priceThreshold === 'number' &&
+      total >= discountToday.priceThreshold &&
+      discountToday.discountPercentage
+    ) {
+      const discountValue = Math.round(total * (discountToday.discountPercentage / 100));
+      return Math.max(0, total - discountValue);
+    }
+    return total;
+  };
+
   const _createOrder = async () => {
     const orderData = {
       branchId: branchId,
       status: 'Delivered',
-      totalPrice: total,
+      totalPrice: getOrderDiscountedTotal(),
       orderItems: order.map(item => ({
         menuItemId: item.id,
         quantity: item.qty,
         unitPrice: item.price,
-      }),)
-    }
+      })),
+    };
     console.log('Order data:', orderData);
     try {
       const result = await createOrder(orderData);
@@ -122,8 +140,23 @@ const Staff: React.FC = () => {
     }
   }
 
+  // Lấy discount hôm nay khi vào trang Staff hoặc khi branchId đổi
   useEffect(() => {
-    // Fetch menu items based on the selected page and pageSize
+    if (!branchId) return;
+    getDiscountToday(branchId)
+      .then((res) => {
+        const discount = res.data ? res.data : res;
+        setDiscountToday(discount);
+        console.log("Discount today:", discount);
+      })
+      .catch((err) => {
+        setDiscountToday(null);
+        console.error("Lỗi lấy discount hôm nay:", err);
+      });
+  }, [branchId]);
+
+  // Fetch menu items khi branchId, page, pageSize, selectedCategory đổi
+  useEffect(() => {
     const fetchMenuItems = async () => {
       try {
         if (branchId !== null) {
@@ -132,6 +165,8 @@ const Staff: React.FC = () => {
           setTotalPages(result.totalPages);
         }
       } catch (error) {
+        setMenuItems([]);
+        setTotalPages(0);
         console.error('Error fetching menu items:', error);
       }
     };
@@ -154,6 +189,44 @@ const Staff: React.FC = () => {
         });
     }
   }, [activeScreen, branchId]);
+
+  // Hàm tính giá đã giảm cho từng item
+  const getDiscountedPrice = (item: MenuItem): number => {
+    if (!discountToday) return item.price;
+    // Nếu discountType là ORDER thì không áp dụng giảm giá cho từng item
+    if (discountToday.discountType === 'ORDER') return item.price;
+    let matched = false;
+    // Kiểm tra itemNames (áp dụng cho từng sản phẩm cụ thể)
+    let itemIds: number[] = [];
+    if (Array.isArray(discountToday.itemNames)) {
+      itemIds = discountToday.itemNames.map((obj: {id?: number, name?: string} | string) => {
+        if (typeof obj === 'object' && obj.id !== undefined) return Number(obj.id);
+        if (typeof obj === 'string') return Number(obj);
+        return NaN;
+      }).filter((n: number) => !isNaN(n));
+    }
+    if (itemIds.includes(item.id)) {
+      matched = true;
+    }
+    // Kiểm tra categoryNames nếu chưa match itemNames
+    let categoryNames: string[] = [];
+    if (!matched && Array.isArray(discountToday.categoryNames)) {
+      categoryNames = discountToday.categoryNames.map((obj: {id?: number, categoryName?: string, name?: string} | string) => {
+        if (typeof obj === 'object' && obj.categoryName) return String(obj.categoryName);
+        if (typeof obj === 'object' && obj.name) return String(obj.name);
+        if (typeof obj === 'string') return obj;
+        return '';
+      }).filter((s: string) => !!s);
+    }
+    if (!matched && categoryNames.includes(item.category)) {
+      matched = true;
+    }
+    if (matched && discountToday.discountPercentage) {
+      const discountValue = Math.round(item.price * (discountToday.discountPercentage / 100));
+      return Math.max(0, item.price - discountValue);
+    }
+    return item.price;
+  };
 
   return (
     <div style={{ 
@@ -487,18 +560,22 @@ const Staff: React.FC = () => {
                 flex: 1,
                 justifyContent: 'center'
               }}>
-                {menuItems.map((product) => (
-                  <Product
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    price={product.price}
-                    img={product.img}
-                    category={product.category}
-                    available={product.available}
-                    onAddToOrder={addToOrder}
-                  />
-                ))}
+                {menuItems.map((product) => {
+                  const discountedPrice = getDiscountedPrice(product);
+                  return (
+                    <Product
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={discountedPrice}
+                      img={product.img}
+                      category={product.category}
+                      onAddToOrder={addToOrder}
+                      // Nếu có giảm giá, truyền thêm originalPrice để hiển thị giá gạch ngang (nếu Product hỗ trợ)
+                      {...(discountedPrice !== product.price ? { originalPrice: product.price } : {})}
+                    />
+                  );
+                })}
               </div>
               {/* Pagination */}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px' }}>
@@ -630,7 +707,7 @@ const Staff: React.FC = () => {
                 bottom: 0
               }}>
                 <h4 style={{ marginBottom: 10, color: '#2c3e50' , fontSize: '20px', fontWeight: 'bold' }}>
-                  Tổng tiền: {total.toLocaleString()} VND
+                  Tổng tiền: {getOrderDiscountedTotal().toLocaleString()} VND
                 </h4>
                 <button 
                   style={{ 
