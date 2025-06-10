@@ -37,4 +37,22 @@ const _logout = async () => {
     }
 }
 
-export { _login, _logout };
+const _updateProfile = async (data: any) => {
+    try {
+        const result = await identity("/update-profile", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify(data),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Update profile error:", error);
+        throw error;
+    }
+};
+
+export { _login, _logout, _updateProfile };

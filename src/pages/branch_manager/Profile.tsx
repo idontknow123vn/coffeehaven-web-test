@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
+// import { _updateProfile } from "../../services/auth";
 import { getProfile } from "../../services/staff";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutButton from "../../components/LogoutButton";
+import ModalUpdateProfile from "../../components/ModalUpdateProfile";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileData {
   id: number;
@@ -16,7 +19,9 @@ const Profile: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const { id: branchId } = useAuth(); // Assuming useAuth provides the branch ID
+  const navigate = useNavigate();
 
   useEffect(() => {
     getProfile()
@@ -38,7 +43,15 @@ const Profile: React.FC = () => {
     <div className="max-w-xl mx-auto mt-12 bg-white rounded-xl shadow-lg p-8">
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold text-[#8B4513]">Thông tin cá nhân</h2>
-        <LogoutButton />
+        <div className="flex gap-2 items-center">
+          <button
+            className="bg-orange-500 text-white px-4 py-2 rounded"
+            onClick={() => setShowUpdateModal(true)}
+          >
+            Cập nhật
+          </button>
+          <LogoutButton />
+        </div>
       </div>
       <div className="space-y-6 text-lg">
         <div className="flex items-center gap-4">
@@ -64,6 +77,18 @@ const Profile: React.FC = () => {
           </div>
         )}
       </div>
+      <ModalUpdateProfile
+        isOpen={showUpdateModal}
+        onClose={() => setShowUpdateModal(false)}
+        profile={profile}
+        onLogout={() => {
+          setShowUpdateModal(false);
+          setTimeout(() => {
+            navigate("/login");
+            window.location.reload();
+          }, 300);
+        }}
+      />
     </div>
   );
 };

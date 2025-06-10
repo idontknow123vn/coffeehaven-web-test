@@ -4,5 +4,9 @@ export interface Order {
     status: string;
     totalPrice: number;
     createdAt: string;
+    employeeId?: number;
+    employeeName?: string;
+    employeePhone?: string;
     customerInfo?: string;
+    receiverInfo?: string;
 }

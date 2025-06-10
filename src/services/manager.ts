@@ -346,6 +346,30 @@ const reassignShift = async (
     }
 }
 
+const updateEmployeeSalary = async (
+    employeeId: number,
+    newSalary: number
+) => {
+    try {
+        const result = await manager(`/update-employee-salary`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                employeeId: employeeId,
+                newSalary: newSalary,
+            }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error updating employee salary:", error);
+        throw error;
+    }
+}
+
 
 export {
     getBranchDetails,
@@ -362,5 +386,6 @@ export {
     addEmployee,
     changeItemStatus,
     getBranchDiscounts,
-    reassignShift
+    reassignShift,
+    updateEmployeeSalary
 };

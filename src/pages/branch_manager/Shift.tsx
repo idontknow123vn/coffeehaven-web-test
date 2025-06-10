@@ -44,6 +44,7 @@ const ShiftPage: React.FC = () => {
         employeeRole?: string;
         branchId: number;
         shiftDate: string;
+        isPresent?: boolean;
     }
     // State lưu dữ liệu phân ca thực tế từ backend
     const [shiftAssignments, setShiftAssignments] = useState<ShiftAssignment[]>(
@@ -301,7 +302,7 @@ const ShiftPage: React.FC = () => {
                                                             style={{
                                                                 color: '#1d3557',
                                                                 cursor: 'pointer',
-                                                                textDecoration: 'underline',
+                                                                textDecoration: emp.isPresent ? 'underline' : 'none',
                                                                 marginBottom: 2,
                                                                 display: 'inline-block',
                                                             }}

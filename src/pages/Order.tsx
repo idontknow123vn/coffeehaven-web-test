@@ -23,6 +23,10 @@ interface ApiOrder {
     totalPrice: number;
     orderDate: string;
     customerInfo?: string;
+    employeeId?: number;
+    employeeName?: string;
+    employeePhone?: string;
+    receiverInfo?: string;
 }
 
 const OrdersPage: React.FC = () => {
@@ -70,6 +74,10 @@ const OrdersPage: React.FC = () => {
                         totalPrice: order.totalPrice,
                         createdAt: order.orderDate,
                         customerInfo: order.customerInfo,
+                        employeeId: order.employeeId,
+                        employeeName: order.employeeName,
+                        employeePhone: order.employeePhone,
+                        receiverInfo: order.receiverInfo,
                     })));
                     // Lấy tổng số trang từ response nếu có
                     if (response.data.totalPages !== undefined) {
@@ -160,7 +168,7 @@ const OrdersPage: React.FC = () => {
                     <tr className="bg-gray-200">
                         <th className="p-2 text-left">Mã đơn</th>
                         <th className="p-2 text-left">Chi nhánh</th>
-                        <th className="p-2 text-left">Món</th>
+                        <th className="p-2 text-left">Nhân viên</th>
                         <th className="p-2 text-left">Giá</th>
                         <th className="p-2 text-left">Thời gian</th>
                         <th className="p-2 text-left">Trạng thái</th>
@@ -172,7 +180,11 @@ const OrdersPage: React.FC = () => {
                         <tr key={index} className="border-b">
                             <td className="p-2">{order.id}</td>
                             <td className="p-2">{order.branchId}</td>
-                            <td className="p-2">a</td>
+                            <td className="p-2">
+                                {(order.employeeName && order.employeePhone)
+                                    ? `${order.employeeName} (${order.employeePhone})`
+                                    : ''}
+                            </td>
                             <td className="p-2">{order.totalPrice}</td>
                             <td className="p-2">{order.createdAt}</td>
                             <td className="p-2">

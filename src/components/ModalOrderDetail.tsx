@@ -17,6 +17,7 @@ const ModalOrderDetail: React.FC<{
         total: string;
         status: string;
         customer?: string;
+        receiverInfo?: string;
     } | null>(null);
 
     useEffect(() => {
@@ -36,6 +37,8 @@ const ModalOrderDetail: React.FC<{
                 total: _order.totalPrice.toLocaleString("vi-VN") + " VNĐ",
                 status: _order.status,
                 customer: _order.customerInfo || undefined,
+                receiverInfo: _order.receiverInfo || undefined,
+                
             });
         };
         fetchDetail();
@@ -102,6 +105,22 @@ const ModalOrderDetail: React.FC<{
                         </label>
                         <p className="text-gray-700">{order.status}</p>
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium">Nhân viên tạo đơn</label>
+                        <p className="text-gray-700">
+                            {_order?.employeeName && _order?.employeePhone
+                              ? `${_order.employeeName} (${_order.employeePhone})`
+                              : "-"}
+                        </p>
+                    </div>
+                    {order.receiverInfo && (
+                      <div>
+                        <label className="block text-sm font-medium">Người nhận</label>
+                        <p className="text-gray-700" style={{ whiteSpace: 'pre-line' }}>
+                          {order.receiverInfo}
+                        </p>
+                      </div>
+                    )}
                 </div>
                 <div className="flex justify-end mt-6">
                     <button

@@ -1,4 +1,4 @@
-import { staff } from "../utils/request";
+import { order, staff } from "../utils/request";
 
 const createOrder = async (data: any) => {
     try {
@@ -82,6 +82,12 @@ const changeOrderStatus = async (orderId: number, status: string) => {
         console.error("Change order status error:", error);
         throw error;
     }
-}
+};
 
-export { createOrder, getOrderByIdBranch, getOrdersByIdBranchAndDate, changeOrderStatus };
+export {
+    createOrder,
+    getOrderByIdBranch,
+    getOrdersByIdBranchAndDate,
+    
+    changeOrderStatus,
+};

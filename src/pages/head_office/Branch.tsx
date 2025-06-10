@@ -3,6 +3,7 @@ import { getBranches } from "../../services/head-office";
 import ModalCreateBranch from "../../components/ModalCreateBranch";
 import LogoutButton from "../../components/LogoutButton";
 import ModalAddEmployee from "../../components/ModalAddEmployee";
+import ModalChangeBranchManager from "../../components/ModalChangeBranchManager";
 
 // Định nghĩa type cho dữ liệu trả về từ API
 interface ApiBranch {
@@ -12,6 +13,7 @@ interface ApiBranch {
     phoneNumber: string;
     managerName: string;
     totalEmployees: number;
+    multiplier?: number;
 }
 
 interface Branch {
@@ -21,12 +23,14 @@ interface Branch {
     phone: string;
     manager: string;
     employees: number;
+    multiplier?: number;
 }
 
 const BranchesPage: React.FC = () => {
     const [branches, setBranches] = useState<Branch[]>([]);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showAssignManagerModal, setShowAssignManagerModal] = useState(false);
+    const [showChangeManagerModal, setShowChangeManagerModal] = useState(false);
     const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
 
     const fetchBranches = useCallback(async () => {
@@ -40,6 +44,7 @@ const BranchesPage: React.FC = () => {
                     phone: branch.phoneNumber,
                     manager: branch.managerName,
                     employees: branch.totalEmployees,
+                    multiplier: branch.multiplier,
                 })));
             }
         } catch (error) {
@@ -73,6 +78,7 @@ const BranchesPage: React.FC = () => {
                         <th className="p-2 text-left">Số điện thoại</th>
                         <th className="p-2 text-left">Quản lý</th>
                         <th className="p-2 text-left">Số nhân viên</th>
+                        <th className="p-2 text-left">Hệ số</th>
                         {/* <th className="p-2 text-left">Doanh thu</th> */}
                         <th className="p-2 text-left"></th>
                     </tr>
@@ -95,9 +101,23 @@ const BranchesPage: React.FC = () => {
                                     >
                                         Bổ nhiệm quản lý
                                     </button>
-                                ) : branch.manager}
+                                ) : (
+                                    <>
+                                        {branch.manager}
+                                        <button
+                                            className="ml-2 text-blue-500 underline text-xs"
+                                            onClick={() => {
+                                                setSelectedBranchId(branch.id);
+                                                setShowChangeManagerModal(true);
+                                            }}
+                                        >
+                                            Đổi quản lý
+                                        </button>
+                                    </>
+                                )}
                             </td>
                             <td className="p-2">{branch.employees}</td>
+                            <td className="p-2">{branch.multiplier ?? '-'}</td>
                             {/* <td className="p-2">{branch.revenue}</td> */}
                             <td className="p-2">👁️</td>
                         </tr>
@@ -121,6 +141,16 @@ const BranchesPage: React.FC = () => {
                 branchId={selectedBranchId || 0}
                 onAdd={async () => {
                     setShowAssignManagerModal(false);
+                    await fetchBranches();
+                }}
+            />
+
+            <ModalChangeBranchManager
+                isOpen={showChangeManagerModal}
+                branchId={selectedBranchId || 0}
+                onClose={() => setShowChangeManagerModal(false)}
+                onSuccess={async () => {
+                    setShowChangeManagerModal(false);
                     await fetchBranches();
                 }}
             />

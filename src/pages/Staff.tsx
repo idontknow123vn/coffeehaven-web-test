@@ -116,6 +116,7 @@ const Staff: React.FC = () => {
   const _createOrder = async () => {
     const orderData = {
       branchId: branchId,
+      employeeId: userId,
       status: 'Delivered',
       totalPrice: getOrderDiscountedTotal(),
       orderItems: order.map(item => ({

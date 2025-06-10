@@ -290,6 +290,47 @@ const getCategoriesCurrentlyBeingSold = async () => {
     }
 };
 
+const getEmployeesNotManagers = async (branchId: number) => {
+    try {
+        const result = await headOffice(
+            `/employees/${branchId}/exclude-manager`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            }
+        );
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching employees not managers:", error);
+        throw error;
+    }
+}
+
+const changeBranchManager = async (branchId: number, newManagerId: number, oldManagerNewRole: string) => {
+    try {
+        const result = await headOffice(`/change-branch-manager`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                branchId,
+                newManagerId, 
+                oldManagerNewRole }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error changing branch manager:", error);
+        throw error;
+    }
+}
+
 export {
     getBranches,
     createBranch,
@@ -305,4 +346,6 @@ export {
     deleteDiscount,
     getItemsCurrentlyBeingSold,
     getCategoriesCurrentlyBeingSold,
+    getEmployeesNotManagers,
+    changeBranchManager
 };

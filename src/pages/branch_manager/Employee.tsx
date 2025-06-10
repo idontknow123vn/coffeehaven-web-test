@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { getEmployeesByBranch } from "../../services/manager";
+import { getEmployeesByBranch, updateEmployeeSalary } from "../../services/manager";
 import LogoutButton from "../../components/LogoutButton";
 import ModalAddEmployee from "../../components/ModalAddEmployee";
+import ModalUpdateSalary from "../../components/ModalUpdateSalary";
+import { roles } from "../../data/roles";
 
 const EmployeesPage: React.FC = () => {
       const [employeeFilter, setEmployeeFilter] = useState<string>('Toàn bộ nhân viên');
       const [employees, setEmployees] = useState<any[]>([]);
       const [showAddModal, setShowAddModal] = useState(false);
+      const [showUpdateSalaryModal, setShowUpdateSalaryModal] = useState(false);
+      const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
       const {id: branchId} = useAuth();
 
       const fetchEmployees = useCallback(async () => {
@@ -55,6 +59,7 @@ const EmployeesPage: React.FC = () => {
                 <th className="p-2 text-left">Số điện thoại</th>
                 {/* <th className="p-2 text-left">Số đơn</th>*/}
                 <th className="p-2 text-left">Trạng thái</th> 
+                <th className="p-2 text-left">Lương</th>
                 <th className="p-2 text-left"></th>
               </tr>
             </thead>
@@ -62,7 +67,9 @@ const EmployeesPage: React.FC = () => {
               {employees.map((employee, index) => (
                 <tr key={index} className="border-b">
                   <td className="p-2">{employee.name}</td>
-                  <td className="p-2">{employee.role}</td>
+                  <td className="p-2">
+                    {roles[employee.role as keyof typeof roles]?.label || employee.role || "-"}
+                  </td>
                   <td className="p-2">{employee.email}</td>
                   <td className="p-2">{employee.phoneNumber}</td>
                   {/* <td className="p-2">{employee.orders}</td> */}
@@ -70,6 +77,20 @@ const EmployeesPage: React.FC = () => {
                     <span className={employee.status === 'Active' ? 'text-green-500' : 'text-red-500'}>
                       {employee.status}
                     </span>
+                  </td>
+                  <td className="p-2">
+                    {employee.salary != null ? employee.salary.toLocaleString() : '-'}
+                    {employee.role !== 'Branch_Manager' && employee.role !== 'Head_Office' && (
+                      <button
+                        className="ml-2 text-blue-500 underline text-xs"
+                        onClick={() => {
+                          setSelectedEmployee(employee);
+                          setShowUpdateSalaryModal(true);
+                        }}
+                      >
+                        Cập nhật
+                      </button>
+                    )}
                   </td>
                   {/* <td className="p-2">👁️</td> */}
                 </tr>
@@ -86,6 +107,17 @@ const EmployeesPage: React.FC = () => {
             }}
             branchId={branchId ?? 0}
             addType="employee"
+          />
+
+          <ModalUpdateSalary
+            isOpen={showUpdateSalaryModal}
+            onClose={() => setShowUpdateSalaryModal(false)}
+            employee={selectedEmployee}
+            updateEmployeeSalary={updateEmployeeSalary}
+            onSuccess={async () => {
+              setShowUpdateSalaryModal(false);
+              await fetchEmployees();
+            }}
           />
         </div>
       );
