@@ -290,6 +290,30 @@ const getCategoriesCurrentlyBeingSold = async () => {
     }
 };
 
+const getEmployeesByBranch = async (branchId: number | null, role: string | null, page: number, size: number) => {
+    try {
+        const queryParams = new URLSearchParams({
+            ...(branchId !== null ? { branchId: branchId.toString() } : {}),
+            ...(role ? { role } : {}),
+            page: page.toString(),
+            size: size.toString(),
+        }).toString();
+        const result = await headOffice(`/employees?${queryParams}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error) {
+        // showError(error);
+        console.error("Login error:", error);
+        throw error;
+    }
+};
+
 const getEmployeesNotManagers = async (branchId: number) => {
     try {
         const result = await headOffice(
@@ -331,6 +355,23 @@ const changeBranchManager = async (branchId: number, newManagerId: number, oldMa
     }
 }
 
+const transferEmployeeToBranch = async (employeeId: number, newBranchId: number) => {
+    try {
+        const result = await headOffice(`/transfer-employee?employeeId=${employeeId}&newBranchId=${newBranchId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error transferring employee to branch:", error);
+        throw error;
+    }
+}
+
 export {
     getBranches,
     createBranch,
@@ -346,6 +387,8 @@ export {
     deleteDiscount,
     getItemsCurrentlyBeingSold,
     getCategoriesCurrentlyBeingSold,
+    getEmployeesByBranch,
     getEmployeesNotManagers,
-    changeBranchManager
+    changeBranchManager,
+    transferEmployeeToBranch
 };

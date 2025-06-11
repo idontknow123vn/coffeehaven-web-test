@@ -20,6 +20,7 @@ import Profile from "./pages/branch_manager/Profile";
 import Overall from "./pages/head_office/Overall";
 import DiscountPage from "./pages/head_office/Discount";
 import DiscountInBranch from "./pages/branch_manager/DiscountInBranch";
+import HeadOfficeEmployeePage from "./pages/head_office/Employee";
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -61,6 +62,17 @@ function App() {
                                 <div className="flex">
                                     <Sidebar />
                                     <MenuItemPage />
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/head-office/employees"
+                        element={
+                            <ProtectedRoute allowedRoles={['Head_Office']}>
+                                <div className="flex">
+                                    <Sidebar />
+                                    <HeadOfficeEmployeePage />
                                 </div>
                             </ProtectedRoute>
                         }
@@ -161,7 +173,7 @@ function App() {
                     <Route
                         path="/employee-dashboard"
                         element={
-                            <ProtectedRoute allowedRoles={['Counter_Staff', 'Delivery_Staff']}>
+                            <ProtectedRoute allowedRoles={['Counter_Staff', 'Delivery_Staff', 'Barista', 'Server']}>
                                 <Staff />
                             </ProtectedRoute>
                         }

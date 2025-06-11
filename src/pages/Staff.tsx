@@ -53,7 +53,7 @@ const Staff: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [discountToday, setDiscountToday] = useState<Discount | null>(null);
-  const { id: branchId } = useAuth();
+  const { id: branchId, userRole } = useAuth();
   const { userId: userId } = useAuth();
 
   const getStatusColor = (status: string) => {
@@ -278,105 +278,142 @@ const Staff: React.FC = () => {
           gap: '20px',
           marginTop: '20px'
         }}>
-          <button
-            onClick={() => setActiveScreen('order')}
-            style={{
-              padding: '12px 20px',
-              background: activeScreen === 'order' ? '#8B4513' : 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#FFFFFF',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontFamily: 'Roboto, sans-serif',
-              fontWeight: 'bold',
-              textAlign: 'left',
-              transition: 'all 0.3s ease',
-              outline: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}
-            onMouseOver={(e) => {
-              if (activeScreen !== 'order') {
-                e.currentTarget.style.background = '#FFA07A';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (activeScreen !== 'order') {
-                e.currentTarget.style.background = 'transparent';
-              }
-            }}
-          >
-            <MdRestaurantMenu size={24} />
-            Thực đơn
-          </button>
-          <button
-            onClick={() => setActiveScreen('invoice')}
-            style={{
-              padding: '12px 20px',
-              background: activeScreen === 'invoice' ? '#8B4513' : 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#FFFFFF',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontFamily: 'Roboto, sans-serif',
-              fontWeight: 'bold',
-              textAlign: 'left',
-              transition: 'all 0.3s ease',
-              outline: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}
-            onMouseOver={(e) => {
-              if (activeScreen !== 'invoice') {
-                e.currentTarget.style.background = '#FFA07A';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (activeScreen !== 'invoice') {
-                e.currentTarget.style.background = 'transparent';
-              }
-            }}
-          >
-            <MdShoppingCart size={24} />
-            Đơn hàng
-          </button>
-          {/* <button
-            onClick={() => setActiveScreen('schedule')}
-            style={{
-              padding: '12px 20px',
-              background: activeScreen === 'schedule' ? '#8B4513' : 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#FFFFFF',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontFamily: 'Roboto, sans-serif',
-              fontWeight: 'bold',
-              textAlign: 'left',
-              transition: 'all 0.3s ease',
-              outline: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}
-            onMouseOver={(e) => {
-              if (activeScreen !== 'schedule') {
-                e.currentTarget.style.background = '#FFA07A';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (activeScreen !== 'schedule') {
-                e.currentTarget.style.background = 'transparent';
-              }
-            }}
-          >
-            <BsCalendarCheck size={24} />
-            Ca làm việc
-          </button> */}
+          {!(userRole === 'Barista' || userRole === 'Server') && (
+            <>
+              <button
+                onClick={() => setActiveScreen('order')}
+                style={{
+                  padding: '12px 20px',
+                  background: activeScreen === 'order' ? '#8B4513' : 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#FFFFFF',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 'bold',
+                  textAlign: 'left',
+                  transition: 'all 0.3s ease',
+                  outline: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+                onMouseOver={(e) => {
+                  if (activeScreen !== 'order') {
+                    e.currentTarget.style.background = '#FFA07A';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (activeScreen !== 'order') {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                <MdRestaurantMenu size={24} />
+                Thực đơn
+              </button>
+              <button
+                onClick={() => setActiveScreen('invoice')}
+                style={{
+                  padding: '12px 20px',
+                  background: activeScreen === 'invoice' ? '#8B4513' : 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#FFFFFF',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 'bold',
+                  textAlign: 'left',
+                  transition: 'all 0.3s ease',
+                  outline: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+                onMouseOver={(e) => {
+                  if (activeScreen !== 'invoice') {
+                    e.currentTarget.style.background = '#FFA07A';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (activeScreen !== 'invoice') {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                <MdShoppingCart size={24} />
+                Đơn hàng
+              </button>
+              {/* <button
+                onClick={() => setActiveScreen('schedule')}
+                style={{
+                  padding: '12px 20px',
+                  background: activeScreen === 'schedule' ? '#8B4513' : 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#FFFFFF',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 'bold',
+                  textAlign: 'left',
+                  transition: 'all 0.3s ease',
+                  outline: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+                onMouseOver={(e) => {
+                  if (activeScreen !== 'schedule') {
+                    e.currentTarget.style.background = '#FFA07A';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (activeScreen !== 'schedule') {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                <BsCalendarCheck size={24} />
+                Ca làm việc
+              </button> */}
+              <button
+                onClick={() => setActiveScreen('preparing')}
+                style={{
+                  padding: '12px 20px',
+                  background: activeScreen === 'preparing' ? '#8B4513' : 'transparent',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: '#FFFFFF',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 'bold',
+                  textAlign: 'left',
+                  transition: 'all 0.3s ease',
+                  outline: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+                onMouseOver={(e) => {
+                  if (activeScreen !== 'preparing') {
+                    e.currentTarget.style.background = '#FFA07A';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (activeScreen !== 'preparing') {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                <MdShoppingCart size={24} />
+                Đơn đang chuẩn bị
+              </button>
+            </>
+          )}
           <button
             onClick={() => setActiveScreen('myshift')}
             style={{
@@ -442,39 +479,6 @@ const Staff: React.FC = () => {
           >
             <MdPerson size={24} />
             Tài khoản
-          </button>
-          <button
-            onClick={() => setActiveScreen('preparing')}
-            style={{
-              padding: '12px 20px',
-              background: activeScreen === 'preparing' ? '#8B4513' : 'transparent',
-              border: 'none',
-              borderRadius: '8px',
-              color: '#FFFFFF',
-              cursor: 'pointer',
-              fontSize: '16px',
-              fontFamily: 'Roboto, sans-serif',
-              fontWeight: 'bold',
-              textAlign: 'left',
-              transition: 'all 0.3s ease',
-              outline: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }}
-            onMouseOver={(e) => {
-              if (activeScreen !== 'preparing') {
-                e.currentTarget.style.background = '#FFA07A';
-              }
-            }}
-            onMouseOut={(e) => {
-              if (activeScreen !== 'preparing') {
-                e.currentTarget.style.background = 'transparent';
-              }
-            }}
-          >
-            <MdShoppingCart size={24} />
-            Đơn đang chuẩn bị
           </button>
         </div>
         {/* Logout Button */}
@@ -929,9 +933,9 @@ const Staff: React.FC = () => {
                     margin: '0 0 20px 0',
                     color: '#8B4513'
                   }}>
-                    Chi tiết đơn hàng {selectedInvoice.id}
+                    Chi tiết đơn hàng {selectedInvoice.orderId}
                   </h3>
-                  <p>Thời gian: {selectedInvoice.time}</p>
+                  <p>Thời gian: {new Date(selectedInvoice.orderDate).toLocaleString("vi-VN", optionsTimeZone)}</p>
                   <p>Trạng thái: {getStatusText(selectedInvoice.status)}</p>
                   <div style={{ margin: '20px 0' }}>
                     <h4>Danh sách món</h4>
@@ -941,7 +945,7 @@ const Staff: React.FC = () => {
                     fontWeight: 'bold',
                     color: '#FFA07A'
                   }}>
-                    Tổng tiền: {selectedInvoice.total.toLocaleString()}đ
+                    Tổng tiền: {selectedInvoice.totalPrice.toLocaleString()}đ
                   </p>
                   <button
                     onClick={() => setShowDetailModal(false)}
@@ -988,7 +992,7 @@ const Staff: React.FC = () => {
                   }}>
                     Xác nhận hủy đơn
                   </h3>
-                  <p>Bạn có chắc chắn muốn hủy đơn hàng {selectedInvoice.id}?</p>
+                  <p>Bạn có chắc chắn muốn hủy đơn hàng {selectedInvoice.orderId}?</p>
                   <div style={{
                     display: 'flex',
                     gap: '10px',

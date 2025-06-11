@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { getBranches, getDiscounts, updateDiscountActiveStatus, updateDiscountThreshold, updateDiscountByRatioAndDuration } from "../../services/head-office";
+import {
+    getBranches,
+    getDiscounts,
+    updateDiscountActiveStatus,
+    updateDiscountThreshold,
+    updateDiscountByRatioAndDuration,
+} from "../../services/head-office";
 import type { Discount } from "../../utils/Discount";
 import ModalAddDiscount from "../../components/ModalAddDiscount";
 import ModalDiscountDetail from "../../components/ModalDiscountDetail";
+import LogoutButton from "../../components/LogoutButton";
 
 interface Branch {
     id: number;
@@ -21,7 +28,9 @@ const DiscountPage: React.FC = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
-    const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
+    const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(
+        null
+    );
     const [updateLoading, setUpdateLoading] = useState(false);
     const [updateError, setUpdateError] = useState("");
     const [editRatio, setEditRatio] = useState<number>(0);
@@ -54,11 +63,15 @@ const DiscountPage: React.FC = () => {
 
     return (
         <div className="flex-1 p-6">
-            <h2 className="text-2xl font-semibold mb-4">
-                Danh sách mã giảm giá
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-semibold mb-4">
+                    Danh sách mã giảm giá
+                </h2>
+                <LogoutButton />
+            </div>
+
             <button
-                className="mb-4 px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+                className="mb-4 px-4 py-2 bg-orange-500 rounded hover:bg-orange-600"
                 onClick={() => setShowAddModal(true)}
             >
                 + Thêm mã giảm giá
@@ -145,14 +158,60 @@ const DiscountPage: React.FC = () => {
                             </tr>
                         ) : (
                             discounts.map((d) => (
-                                <tr key={d.id} className="border-b hover:bg-gray-100 cursor-pointer" onClick={() => { setSelectedDiscount(d); setShowDetailModal(true); }}>
+                                <tr
+                                    key={d.id}
+                                    className="border-b hover:bg-gray-100 cursor-pointer"
+                                    onClick={() => {
+                                        setSelectedDiscount(d);
+                                        setShowDetailModal(true);
+                                    }}
+                                >
                                     <td className="p-2">{d.name}</td>
-                                    <td className="p-2">{d.discountPercentage}%</td>
+                                    <td className="p-2">
+                                        {d.discountPercentage}%
+                                    </td>
                                     <td className="p-2">{d.startDate}</td>
                                     <td className="p-2">{d.endDate}</td>
-                                    <td className="p-2 cursor-pointer" onClick={e => { e.stopPropagation(); updateDiscountActiveStatus(d.id, !d.isActive).then(() => { setLoading(true); getDiscounts(branchId ?? 0, discountType ?? "", page, pageSize).then((res) => { setDiscounts(res.data.data || []); setTotalPages(res.data.totalPages || 1); }).finally(() => setLoading(false)); }); }}>
-                                        <span className={d.isActive ? "text-green-600 font-semibold" : "text-gray-400"}>
-                                            {d.isActive ? "Đang áp dụng" : "Ngừng áp dụng"}
+                                    <td
+                                        className="p-2 cursor-pointer"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            updateDiscountActiveStatus(
+                                                d.id,
+                                                !d.isActive
+                                            ).then(() => {
+                                                setLoading(true);
+                                                getDiscounts(
+                                                    branchId ?? 0,
+                                                    discountType ?? "",
+                                                    page,
+                                                    pageSize
+                                                )
+                                                    .then((res) => {
+                                                        setDiscounts(
+                                                            res.data.data || []
+                                                        );
+                                                        setTotalPages(
+                                                            res.data
+                                                                .totalPages || 1
+                                                        );
+                                                    })
+                                                    .finally(() =>
+                                                        setLoading(false)
+                                                    );
+                                            });
+                                        }}
+                                    >
+                                        <span
+                                            className={
+                                                d.isActive
+                                                    ? "text-green-600 font-semibold"
+                                                    : "text-gray-400"
+                                            }
+                                        >
+                                            {d.isActive
+                                                ? "Đang áp dụng"
+                                                : "Ngừng áp dụng"}
                                         </span>
                                     </td>
                                     <td className="p-2">
@@ -165,12 +224,28 @@ const DiscountPage: React.FC = () => {
                                             : ""}
                                     </td>
                                     <td className="p-2">
-                                        {d.isAppliedToAll ? "Tất cả chi nhánh" : "Một số chi nhánh"}
+                                        {d.isAppliedToAll
+                                            ? "Tất cả chi nhánh"
+                                            : "Một số chi nhánh"}
                                     </td>
                                     <td className="p-2">
                                         <button
                                             className="text-blue-500 underline"
-                                            onClick={e => { e.stopPropagation(); setSelectedDiscount(d); setEditRatio(d.discountPercentage ?? 0); setEditStartDate(d.startDate ?? ""); setEditEndDate(d.endDate ?? ""); setEditThreshold(d.priceThreshold ?? 0); setShowUpdateModal(true); }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedDiscount(d);
+                                                setEditRatio(
+                                                    d.discountPercentage ?? 0
+                                                );
+                                                setEditStartDate(
+                                                    d.startDate ?? ""
+                                                );
+                                                setEditEndDate(d.endDate ?? "");
+                                                setEditThreshold(
+                                                    d.priceThreshold ?? 0
+                                                );
+                                                setShowUpdateModal(true);
+                                            }}
                                         >
                                             Sửa
                                         </button>
@@ -188,7 +263,7 @@ const DiscountPage: React.FC = () => {
                     className={`px-4 py-2 rounded ${
                         page === 0
                             ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-orange-500 text-white"
+                            : "bg-orange-500"
                     }`}
                 >
                     Trang trước
@@ -204,7 +279,7 @@ const DiscountPage: React.FC = () => {
                     className={`px-4 py-2 rounded ${
                         page >= totalPages - 1
                             ? "bg-gray-300 cursor-not-allowed"
-                            : "bg-orange-500 text-white"
+                            : "bg-orange-500"
                     }`}
                 >
                     Trang sau
@@ -227,21 +302,37 @@ const DiscountPage: React.FC = () => {
             {showUpdateModal && selectedDiscount && (
                 <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative overflow-y-auto max-h-[90vh]">
-                        <button className="absolute top-2 right-2 text-xl" onClick={() => setShowUpdateModal(false)}>&times;</button>
-                        <h2 className="text-xl font-semibold mb-4">Cập nhật mã giảm giá</h2>
+                        <button
+                            className="absolute top-2 right-2 text-xl"
+                            onClick={() => setShowUpdateModal(false)}
+                        >
+                            &times;
+                        </button>
+                        <h2 className="text-xl font-semibold mb-4">
+                            Cập nhật mã giảm giá
+                        </h2>
                         <form
                             onSubmit={async (e) => {
                                 e.preventDefault();
                                 setUpdateLoading(true);
                                 setUpdateError("");
                                 try {
-                                    await updateDiscountByRatioAndDuration(selectedDiscount.id, {
-                                        discountPercentage: editRatio,
-                                        startDate: editStartDate,
-                                        endDate: editEndDate,
-                                    });
-                                    if (selectedDiscount.discountType === "ORDER") {
-                                        await updateDiscountThreshold(selectedDiscount.id, editThreshold);
+                                    await updateDiscountByRatioAndDuration(
+                                        selectedDiscount.id,
+                                        {
+                                            discountPercentage: editRatio,
+                                            startDate: editStartDate,
+                                            endDate: editEndDate,
+                                        }
+                                    );
+                                    if (
+                                        selectedDiscount.discountType ===
+                                        "ORDER"
+                                    ) {
+                                        await updateDiscountThreshold(
+                                            selectedDiscount.id,
+                                            editThreshold
+                                        );
                                     }
                                     setShowUpdateModal(false);
                                     setLoading(true);
@@ -250,12 +341,18 @@ const DiscountPage: React.FC = () => {
                                         discountType ?? "",
                                         page,
                                         pageSize
-                                    ).then((res) => {
-                                        setDiscounts(res.data.data || []);
-                                        setTotalPages(res.data.totalPages || 1);
-                                    }).finally(() => setLoading(false));
+                                    )
+                                        .then((res) => {
+                                            setDiscounts(res.data.data || []);
+                                            setTotalPages(
+                                                res.data.totalPages || 1
+                                            );
+                                        })
+                                        .finally(() => setLoading(false));
                                 } catch {
-                                    setUpdateError("Có lỗi xảy ra khi cập nhật");
+                                    setUpdateError(
+                                        "Có lỗi xảy ra khi cập nhật"
+                                    );
                                 } finally {
                                     setUpdateLoading(false);
                                 }
@@ -263,51 +360,73 @@ const DiscountPage: React.FC = () => {
                             className="space-y-4"
                         >
                             <div>
-                                <label className="block font-medium mb-1">Phần trăm giảm giá (%)</label>
+                                <label className="block font-medium mb-1">
+                                    Phần trăm giảm giá (%)
+                                </label>
                                 <input
                                     type="number"
                                     min={1}
                                     max={100}
                                     value={editRatio}
-                                    onChange={e => setEditRatio(Number(e.target.value))}
+                                    onChange={(e) =>
+                                        setEditRatio(Number(e.target.value))
+                                    }
                                     className="border rounded p-2 w-full"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block font-medium mb-1">Ngày bắt đầu</label>
+                                <label className="block font-medium mb-1">
+                                    Ngày bắt đầu
+                                </label>
                                 <input
                                     type="date"
                                     value={editStartDate}
-                                    onChange={e => setEditStartDate(e.target.value)}
+                                    onChange={(e) =>
+                                        setEditStartDate(e.target.value)
+                                    }
                                     className="border rounded p-2 w-full"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block font-medium mb-1">Ngày kết thúc</label>
+                                <label className="block font-medium mb-1">
+                                    Ngày kết thúc
+                                </label>
                                 <input
                                     type="date"
                                     value={editEndDate}
-                                    onChange={e => setEditEndDate(e.target.value)}
+                                    onChange={(e) =>
+                                        setEditEndDate(e.target.value)
+                                    }
                                     className="border rounded p-2 w-full"
                                     required
                                 />
                             </div>
                             {selectedDiscount.discountType === "ORDER" && (
                                 <div>
-                                    <label className="block font-medium mb-1">Ngưỡng giá trị đơn hàng áp dụng</label>
+                                    <label className="block font-medium mb-1">
+                                        Ngưỡng giá trị đơn hàng áp dụng
+                                    </label>
                                     <input
                                         type="number"
                                         min={0}
                                         value={editThreshold}
-                                        onChange={e => setEditThreshold(Number(e.target.value))}
+                                        onChange={(e) =>
+                                            setEditThreshold(
+                                                Number(e.target.value)
+                                            )
+                                        }
                                         className="border rounded p-2 w-full"
                                         required
                                     />
                                 </div>
                             )}
-                            {updateError && <div className="text-red-500 text-sm">{updateError}</div>}
+                            {updateError && (
+                                <div className="text-red-500 text-sm">
+                                    {updateError}
+                                </div>
+                            )}
                             <div className="flex justify-end gap-2">
                                 <button
                                     type="button"
@@ -319,7 +438,7 @@ const DiscountPage: React.FC = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-4 py-2 rounded bg-orange-500 text-white"
+                                    className="px-4 py-2 rounded bg-orange-500"
                                     disabled={updateLoading}
                                 >
                                     {updateLoading ? "Đang lưu..." : "Cập nhật"}

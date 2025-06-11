@@ -11,15 +11,20 @@ const getBranchDetails = async (branchId: number) => {
             },
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching branch details:", error);
         throw error;
     }
 };
 
-const getEmployeesByBranch = async (branchId: number) => {
+const getEmployeesByBranch = async (branchId: number, role: string | null, page: number, size: number) => {
     try {
-        const result = await manager(`/employees/${branchId}`, {
+        const queryParams = new URLSearchParams({
+            ...(role ? { role } : {}),
+            page: page.toString(),
+            size: size.toString(),
+        }).toString();
+        const result = await manager(`/employees/${branchId}?${queryParams}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -28,7 +33,7 @@ const getEmployeesByBranch = async (branchId: number) => {
             },
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         // showError(error);
         console.error("Login error:", error);
         throw error;
@@ -61,7 +66,7 @@ const getMenuItemsNotInBranch = async (
             }
         );
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching employees not in branch:", error);
         throw error;
     }
@@ -82,7 +87,7 @@ const addItemToBranch = async (branchId: number, itemId: number) => {
             }),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error adding item to branch:", error);
         throw error;
     }
@@ -108,7 +113,7 @@ const changeItemStatus = async (
             }),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error changing item status:", error);
         throw error;
     }
@@ -130,7 +135,7 @@ const getShiftByBranchInWeek = async (branchId: number, date: string) => {
             }
         );
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching shifts by branch in week:", error);
         throw error;
     }
@@ -156,7 +161,7 @@ const addEmployeeToShift = async (
             }),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error adding employee to shift:", error);
         throw error;
     }
@@ -178,7 +183,7 @@ const getEmployeesNotManager = async (branchId: number) => {
             }
         );
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching employees not manager:", error);
         throw error;
     }
@@ -208,7 +213,7 @@ const updateEmployeeShift = async (
             }),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error updating employee shift:", error);
         throw error;
     }
@@ -234,7 +239,7 @@ const deleteEmployeeShift = async (
             }),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error deleting employee shift:", error);
         throw error;
     }
@@ -251,7 +256,7 @@ const getWeeklyRevenueByBranch = async (branchId: number, date: string) => {
             },
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching weekly revenue by branch:", error);
         throw error;
     }
@@ -277,13 +282,13 @@ const getMonthlyRevenueByBranch = async (
             }
         );
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching monthly revenue by branch:", error);
         throw error;
     }
 };
 
-const addEmployee = async (employeeData: any) => {
+const addEmployee = async (employeeData: Record<string, unknown>) => {
     try {
         const result = await manager(`/create-employee`, {
             method: "POST",
@@ -295,7 +300,7 @@ const addEmployee = async (employeeData: any) => {
             data: JSON.stringify(employeeData),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error adding employee:", error);
         throw error;
     }
@@ -312,7 +317,7 @@ const getBranchDiscounts = async (branchId: number) => {
             },
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error fetching branch discounts:", error);
         throw error;
     }
@@ -340,7 +345,7 @@ const reassignShift = async (
             }),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error reassigning shift:", error);
         throw error;
     }
@@ -364,7 +369,7 @@ const updateEmployeeSalary = async (
             }),
         });
         return result;
-    } catch (error: any) {
+    } catch (error) {
         console.error("Error updating employee salary:", error);
         throw error;
     }
