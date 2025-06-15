@@ -17,7 +17,7 @@ const Login = () => {
         result
             .then((value) => {
                 if (value === "Branch_Manager") {
-                    navigate("/manager-dashboard");
+                    navigate("/manager");
                 } else if (value === "Counter_Staff" || value === "Delivery_Staff") {
                     navigate("/employee-dashboard");
                 } else (
@@ -36,14 +36,14 @@ const Login = () => {
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">
-                            Tên đăng nhập
+                            Email
                         </label>
                         <input
                             type="text"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-black"
-                            placeholder="Nhập tên đăng nhập"
+                            placeholder="Nhập email"
                         />
                     </div>
                     <div>

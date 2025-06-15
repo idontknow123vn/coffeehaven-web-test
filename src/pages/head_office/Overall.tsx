@@ -9,7 +9,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
-import { getMonthlyRevenueByBranch, getBranches } from "../../services/head-office";
+import { getMonthlyRevenueByBranch, getBranches, getOverallMonthlyRevenue, getTotalActiveEmployees } from "../../services/head-office";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutButton from "../../components/LogoutButton";
 
@@ -66,6 +66,13 @@ const RevenueSum: React.FC = () => {
     const [branches, setBranches] = useState<{ id: number; name: string }[]>([]);
     const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
 
+    // State cho doanh thu toàn hệ thống
+    const [overallMonthRevenue, setOverallMonthRevenue] = useState<number[]>([]);
+    const [overallMonthLabels, setOverallMonthLabels] = useState<string[]>([]);
+
+    // State cho tổng số nhân viên đang hoạt động
+    const [totalActiveEmployees, setTotalActiveEmployees] = useState<number>(0);
+
     // Lấy danh sách chi nhánh khi mount
     useEffect(() => {
         getBranches()
@@ -77,44 +84,6 @@ const RevenueSum: React.FC = () => {
             })
             .catch(() => setBranches([]));
     }, []);
-
-    // useEffect(() => {
-    //     const fetchRevenue = async () => {
-    //         if (!branchId) return;
-    //         // Lấy ngày hiện tại (không cần lấy ngày đầu tuần)
-    //         const today = new Date();
-    //         const dateStr = today.toISOString().slice(0, 10);
-    //         try {
-    //             const res = await getWeeklyRevenueByBranch(branchId, dateStr);
-    //             setDailyRevenue(
-    //                 weekDays.map((dow) => {
-    //                     const found = (
-    //                         res.data.data as Array<{
-    //                             dayOfWeek: string;
-    //                             date: string;
-    //                             totalRevenue: number;
-    //                         }>
-    //                     ).find((d) => d.dayOfWeek === dow);
-    //                     return {
-    //                         day: dayOfWeekMap[dow],
-    //                         value: found ? found.totalRevenue : 0,
-    //                         date: found ? found.date : "",
-    //                     };
-    //                 })
-    //             );
-    //             setWeekRevenue(
-    //                 (res.data.data as Array<{ totalRevenue: number }>).reduce(
-    //                     (sum, d) => sum + d.totalRevenue,
-    //                     0
-    //                 )
-    //             );
-    //         } catch {
-    //             setDailyRevenue([]);
-    //             setWeekRevenue(0);
-    //         }
-    //     };
-    //     fetchRevenue();
-    // }, [branchId]);
 
     // Sửa fetchMonthRevenue để dùng selectedBranch thay vì branchId
     useEffect(() => {
@@ -156,6 +125,44 @@ const RevenueSum: React.FC = () => {
         };
         fetchMonthRevenue();
     }, [selectedBranch, selectedMonth, selectedYear]);
+
+    // Fetch overall system revenue for the month (all branches combined)
+    useEffect(() => {
+        const fetchOverallMonthRevenue = async () => {
+            try {
+                const res = await getOverallMonthlyRevenue(selectedMonth, selectedYear);
+                const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+                const labelArr = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
+                setOverallMonthLabels(labelArr);
+                const revenueArr = labelArr.map((day) => {
+                    const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                    const found = (res.data.data as Array<{ date: string; totalRevenue: number }>).find((d) => d.date === dateStr);
+                    return found ? found.totalRevenue : 0;
+                });
+                setOverallMonthRevenue(revenueArr);
+            } catch {
+                setOverallMonthLabels([]);
+                setOverallMonthRevenue([]);
+            }
+        };
+        fetchOverallMonthRevenue();
+    }, [selectedMonth, selectedYear]);
+
+    // Lấy tổng số nhân viên đang hoạt động
+    useEffect(() => {
+        const fetchTotalActiveEmployees = async () => {
+            try {
+                const res = await getTotalActiveEmployees();
+                setTotalActiveEmployees(res.data.data ?? 0);
+            } catch {
+                setTotalActiveEmployees(0);
+            }
+        };
+        fetchTotalActiveEmployees();
+    }, []);
+
+    // Tổng doanh thu tháng này (toàn hệ thống)
+    const totalRevenueThisMonth = overallMonthRevenue.reduce((sum, v) => sum + v, 0);
 
     // Chart data
     // const chartData = {
@@ -201,34 +208,50 @@ const RevenueSum: React.FC = () => {
                 <LogoutButton />
             </div>
 
-            {/* <div className="mb-10">
-                <h3 className="text-xl font-semibold mb-4 text-gray-700">
-                    Doanh thu tuần này
-                </h3>
+            <div className="mb-10">
                 <div className="flex gap-8 mb-8">
                     <div className="bg-white rounded-lg shadow p-6 flex-1 text-center">
                         <div className="text-gray-500 mb-2">
-                            Doanh thu trong tuần
+                            Doanh thu tháng này
                         </div>
                         <div className="text-3xl font-bold text-orange-500">
-                            {weekRevenue.toLocaleString("vi-VN")} VNĐ
+                            {totalRevenueThisMonth.toLocaleString("vi-VN")} VNĐ
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow p-6 flex-1 text-center">
+                        <div className="text-gray-500 mb-2">
+                            Nhân viên đang hoạt động
+                        </div>
+                        <div className="text-3xl font-bold text-blue-500">
+                            {totalActiveEmployees.toLocaleString("vi-VN")}
                         </div>
                     </div>
                 </div>
-                <div className="bg-white rounded-lg shadow p-6 h-64">
-                    <h4 className="text-lg font-semibold mb-4 text-gray-700">
-                        Biểu đồ doanh thu theo ngày trong tuần
-                    </h4>
-                    <Bar
-                        data={chartData}
-                        options={{
-                            ...chartOptions,
-                            maintainAspectRatio: false,
-                        }}
-                        className="w-full h-full"
-                    />
-                </div>
-            </div> */}
+            </div>
+
+            <div className="bg-white rounded-lg shadow p-6 h-72 mb-8">
+                <h4 className="text-lg font-semibold text-gray-700 mb-4">
+                    Biểu đồ doanh thu toàn hệ thống theo ngày trong tháng
+                </h4>
+                <Bar
+                    data={{
+                        labels: overallMonthLabels,
+                        datasets: [
+                            {
+                                label: "Doanh thu toàn hệ thống (VNĐ)",
+                                data: overallMonthRevenue,
+                                backgroundColor: "#fb923c",
+                                borderRadius: 6,
+                            },
+                        ],
+                    }}
+                    options={{
+                        ...chartOptions,
+                        maintainAspectRatio: false,
+                    }}
+                    className="w-full h-full"
+                />
+            </div>
 
             <div className="bg-white rounded-lg shadow p-6 h-72">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-4">

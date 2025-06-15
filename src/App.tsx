@@ -21,6 +21,8 @@ import Overall from "./pages/head_office/Overall";
 import DiscountPage from "./pages/head_office/Discount";
 import DiscountInBranch from "./pages/branch_manager/DiscountInBranch";
 import HeadOfficeEmployeePage from "./pages/head_office/Employee";
+import HeadOfficeLayout from "./layouts/HeadOfficeLayout";
+import ManagerLayout from "./layouts/ManagerLayout";
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -36,138 +38,36 @@ function App() {
                         path="/head-office"
                         element={
                             <ProtectedRoute allowedRoles={['Head_Office']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <Overall />
-                                </div>
-                                {/* <RevenueSum /> */}
+                                <HeadOfficeLayout />
                             </ProtectedRoute>
                         }
-                    />
-                    <Route
-                        path="/head-office/branches"
-                        element={
-                            <ProtectedRoute allowedRoles={['Head_Office']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <BranchesPage />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/head-office/menu"
-                        element={
-                            <ProtectedRoute allowedRoles={['Head_Office']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <MenuItemPage />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/head-office/employees"
-                        element={
-                            <ProtectedRoute allowedRoles={['Head_Office']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <HeadOfficeEmployeePage />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/head-office/discounts"
-                        element={
-                            <ProtectedRoute allowedRoles={['Head_Office']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <DiscountPage />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/head-office/profile"
-                        element={
-                            <ProtectedRoute allowedRoles={['Head_Office']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <Profile />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
+                    >
+                        <Route index element={<Overall />} />
+                        <Route path="branches" element={<BranchesPage />} />
+                        <Route path="menu" element={<MenuItemPage />} />
+                        <Route path="employees" element={<HeadOfficeEmployeePage />} />
+                        <Route path="discounts" element={<DiscountPage />} />
+                        <Route path="profile" element={<Profile />} />
+                    </Route>
 
-                    
                     {/* Manager Routes */}
                     <Route
-                        path="/manager-dashboard"
+                        path="/manager"
                         element={
                             <ProtectedRoute allowedRoles={['Branch_Manager']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <RevenueSum />
-                                </div>
+                                <ManagerLayout />
                             </ProtectedRoute>
                         }
-                    />
-                    <Route
-                        path="/branches"
-                        element={
-                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <BranchDetailsPage />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/employees"
-                        element={
-                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <EmployeesPage />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/shift"
-                        element={
-                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <Shift />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <Profile />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/branch-manager/discounts"
-                        element={
-                            <ProtectedRoute allowedRoles={['Branch_Manager']}>
-                                <div className="flex">
-                                    <Sidebar />
-                                    <DiscountInBranch />
-                                </div>
-                            </ProtectedRoute>
-                        }
-                    />
+                    >
+                        <Route index element={<RevenueSum />} />
+                        <Route path="branches" element={<BranchDetailsPage />} />
+                        <Route path="employees" element={<EmployeesPage />} />
+                        <Route path="shift" element={<Shift />} />
+                        <Route path="profile" element={<Profile />} />
+                        <Route path="discounts" element={<DiscountInBranch />} />
+                        <Route path="menu" element={<MenuPage />} />
+                        <Route path="orders" element={<OrdersPage />} />
+                    </Route>
 
                     {/* Employee Routes */}
                     <Route

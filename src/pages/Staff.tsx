@@ -161,7 +161,7 @@ const Staff: React.FC = () => {
     const fetchMenuItems = async () => {
       try {
         if (branchId !== null) {
-          const result = await getMenuItemsByBranch(branchId, page, pageSize, selectedCategory);
+          const result = await getMenuItemsByBranch(branchId, page, pageSize, selectedCategory, false);
           setMenuItems(result.data);
           setTotalPages(result.totalPages);
         }

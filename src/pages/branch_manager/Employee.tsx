@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { getEmployeesByBranch, updateEmployeeSalary } from "../../services/manager";
+import { getEmployeesByBranch, updateEmployeeSalary, changeEmployeeStatus } from "../../services/manager";
 import LogoutButton from "../../components/LogoutButton";
 import ModalAddEmployee from "../../components/ModalAddEmployee";
 import ModalUpdateSalary from "../../components/ModalUpdateSalary";
@@ -16,6 +16,8 @@ const EmployeesPage: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const { id: branchId } = useAuth();
+  const [showReasonModal, setShowReasonModal] = useState<{ open: boolean, employee: Record<string, unknown> | null }>({ open: false, employee: null });
+  const [reason, setReason] = useState("");
 
   const fetchEmployees = useCallback(async (role: string | null = employeeFilter, _page = page, _pageSize = pageSize) => {
     try {
@@ -83,7 +85,18 @@ const EmployeesPage: React.FC = () => {
               <td className="p-2">{String(employee.phoneNumber ?? '')}</td>
               {/* <td className="p-2">{employee.orders}</td> */}
               <td className="p-2">
-                <span className={employee.status === 'Active' ? 'text-green-500' : 'text-red-500'}>
+                <span
+                  className={employee.status === 'Active' ? 'text-green-500 cursor-pointer underline' : 'text-red-500 cursor-pointer underline'}
+                  onClick={() => {
+                    if (employee.status === 'Active') {
+                      setShowReasonModal({ open: true, employee });
+                      setReason("");
+                    } else {
+                      // Chuyển sang Active không cần lý do
+                      changeEmployeeStatus(Number(employee.id), true, '').then(() => fetchEmployees());
+                    }
+                  }}
+                >
                   {String(employee.status ?? '')}
                 </span>
               </td>
@@ -160,6 +173,45 @@ const EmployeesPage: React.FC = () => {
           await fetchEmployees();
         }}
       />
+
+      {showReasonModal.open && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white border rounded shadow p-6 min-w-[320px] relative">
+            <h3 className="text-lg font-semibold mb-4">Nhập lý do chuyển trạng thái Inactive</h3>
+            <textarea
+              className="border rounded p-2 w-full mb-4"
+              rows={3}
+              placeholder="Nhập lý do..."
+              value={reason}
+              onChange={e => setReason(e.target.value)}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded text-sm"
+                onClick={async () => {
+                  if (!showReasonModal.employee) return;
+                  await changeEmployeeStatus(Number(showReasonModal.employee.id), false, reason);
+                  setShowReasonModal({ open: false, employee: null });
+                  setReason("");
+                  fetchEmployees();
+                }}
+                disabled={!reason.trim()}
+              >
+                Xác nhận
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-300 text-black rounded text-sm"
+                onClick={() => {
+                  setShowReasonModal({ open: false, employee: null });
+                  setReason("");
+                }}
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

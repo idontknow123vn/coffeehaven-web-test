@@ -10,6 +10,7 @@ import {
     Legend,
 } from "chart.js";
 import {
+    countEmployeesInBranch,
     getWeeklyRevenueByBranch,
     getMonthlyRevenueByBranch,
 } from "../../services/manager";
@@ -63,6 +64,7 @@ const RevenueSum: React.FC = () => {
     );
     const [monthRevenue, setMonthRevenue] = useState<number[]>([]); // doanh thu từng ngày trong tháng
     const [monthLabels, setMonthLabels] = useState<string[]>([]); // nhãn ngày
+    const [activeEmployeeCount, setActiveEmployeeCount] = useState<number>(0);
 
     useEffect(() => {
         const fetchRevenue = async () => {
@@ -147,6 +149,19 @@ const RevenueSum: React.FC = () => {
         fetchMonthRevenue();
     }, [branchId, selectedMonth, selectedYear]);
 
+    useEffect(() => {
+        if (!branchId) return;
+        const fetchActiveEmployeeCount = async () => {
+            try {
+                const res = await countEmployeesInBranch(branchId);
+                setActiveEmployeeCount(res.data.data ?? 0);
+            } catch {
+                setActiveEmployeeCount(0);
+            }
+        };
+        fetchActiveEmployeeCount();
+    }, [branchId]);
+
     // Chart data
     const chartData = {
         labels: dailyRevenue.map((d) => d.day),
@@ -186,7 +201,7 @@ const RevenueSum: React.FC = () => {
         <div className="flex-1 p-6 bg-gray-50 min-h-screen">
             <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-semibold text-gray-800">
-                    Tổng quan doanh thu
+                    Tổng quan
                 </h2>
                 <LogoutButton />
             </div>
@@ -202,6 +217,15 @@ const RevenueSum: React.FC = () => {
                         </div>
                         <div className="text-3xl font-bold text-orange-500">
                             {weekRevenue.toLocaleString("vi-VN")} VNĐ
+                        </div>
+                        
+                    </div>
+                    <div className="bg-white rounded-lg shadow p-6 flex-1 text-center">
+                        <div className="text-gray-500 mb-2">
+                            Số nhân viên hoạt động
+                        </div>
+                        <div className="text-3xl font-bold text-blue-500">
+                            {activeEmployeeCount.toLocaleString("vi-VN")}
                         </div>
                     </div>
                 </div>

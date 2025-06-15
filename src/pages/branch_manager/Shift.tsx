@@ -252,6 +252,33 @@ const ShiftPage: React.FC = () => {
                 <h3 className="text-lg font-semibold mb-2">
                     Bảng phân ca theo tuần
                 </h3>
+                <div className="flex items-center gap-4 mb-4">
+                    <button
+                        className="px-3 py-1 bg-orange-500 text-white rounded"
+                        onClick={() => {
+                            // Lùi về 7 ngày
+                            const prev = new Date(currentDate);
+                            prev.setDate(prev.getDate() - 7);
+                            setCurrentDate(formatDate(prev));
+                        }}
+                    >
+                        Tuần trước
+                    </button>
+                    <span className="font-semibold text-lg">
+                        {weekDates[0].toLocaleDateString("vi-VN")} - {weekDates[6].toLocaleDateString("vi-VN")}
+                    </span>
+                    <button
+                        className="px-3 py-1 bg-orange-500 text-white rounded"
+                        onClick={() => {
+                            // Tiến 7 ngày
+                            const next = new Date(currentDate);
+                            next.setDate(next.getDate() + 7);
+                            setCurrentDate(formatDate(next));
+                        }}
+                    >
+                        Tuần sau
+                    </button>
+                </div>
                 <table className="w-full border-collapse mb-6">
                     <thead>
                         <tr className="bg-gray-200">

@@ -53,6 +53,26 @@ const addBranchManager = async (managerData: any) => {
     }
 };
 
+const changeBranchStatus = async (branchId: number) => {
+    try {
+        const result = await headOffice(
+            `/change-branch-status/${branchId}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            }
+        );
+        return result;
+    } catch (error: any) {
+        console.error("Error changing branch status:", error);
+        throw error;
+    }
+}
+
 // Tạo mới menu item (dùng cho ModalAddMenuItem)
 const createMenuItem = async (formData: FormData) => {
     try {
@@ -72,14 +92,37 @@ const createMenuItem = async (formData: FormData) => {
     }
 };
 
+const getTotalActiveEmployees = async () => {
+    try {
+        const result = await headOffice(
+            `/count-employees`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            }
+        );
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching total active employees:", error);
+        throw error;
+    }
+}
+
 const getMonthlyRevenueByBranch = async (
-    branchId: number,
+    branchId: number | null,
     month: number,
     year: number
 ) => {
     try {
+        const queryParams = branchId != null? new URLSearchParams({
+            branchId: branchId.toString(),
+        }).toString() : null;
         const result = await headOffice(
-            `/branch/${branchId}/statistics/${year}/${month}`,
+            `/overall/statistics/${year}/${month}${queryParams ? '?' + queryParams : ''}`,
             {
                 method: "GET",
                 headers: {
@@ -94,6 +137,26 @@ const getMonthlyRevenueByBranch = async (
         return result;
     } catch (error: any) {
         console.error("Error fetching monthly revenue by branch:", error);
+        throw error;
+    }
+};
+
+const getOverallMonthlyRevenue = async (month: number, year: number) => {
+    try {
+        const result = await headOffice(
+            `/overall/statistics/${year}/${month}`,
+            {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            }
+        );
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching overall monthly revenue:", error);
         throw error;
     }
 };
@@ -376,8 +439,11 @@ export {
     getBranches,
     createBranch,
     addBranchManager,
+    changeBranchStatus,
     createMenuItem,
+    getTotalActiveEmployees,
     getMonthlyRevenueByBranch,
+    getOverallMonthlyRevenue,
     updateItem,
     createDiscount,
     updateDiscountByRatioAndDuration,

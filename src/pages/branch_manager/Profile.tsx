@@ -50,7 +50,7 @@ const Profile: React.FC = () => {
           >
             Cập nhật
           </button>
-          <LogoutButton />
+          <LogoutButton isProfile={true}/>
         </div>
       </div>
       <div className="space-y-6 text-lg">

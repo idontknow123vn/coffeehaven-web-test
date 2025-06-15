@@ -1,8 +1,8 @@
 import { category, menuItems } from '../utils/request';
 
-const getMenuItemsByBranch = async (branchId: number, page = 0, size = 10, categoryId = 0) => {
+const getMenuItemsByBranch = async (branchId: number, page = 0, size = 10, categoryId = 0, includeUnavailable: boolean) => {
   const response = await menuItems.get(`/branch/${branchId}/category`, {
-    params: { page, size, categoryId },
+    params: { page, size, categoryId, includeUnavailable },
   });
   return response.data;
 };

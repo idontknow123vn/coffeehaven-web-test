@@ -36,7 +36,8 @@ const MenuPage: React.FC = () => {
                         branchId,
                         page,
                         pageSize,
-                        categoryId
+                        categoryId,
+                        true
                     );
                     setMenuItems(result.data);
                     setTotalPages(result.totalPages);
@@ -83,7 +84,7 @@ const MenuPage: React.FC = () => {
         try {
             await addItemToBranch(branchId, itemId);
             // Sau khi thêm, reload menuItems của chi nhánh
-            const result = await getMenuItemsByBranch(branchId, page, pageSize, categoryId);
+            const result = await getMenuItemsByBranch(branchId, page, pageSize, categoryId, true);
             setMenuItems(result.data);
             setTotalPages(result.totalPages);
             // Reload lại danh sách món chưa có trong chi nhánh
@@ -100,7 +101,7 @@ const MenuPage: React.FC = () => {
         try {
             await changeItemStatus(branchId, item.id, newStatus);
             // Sau khi cập nhật, reload lại danh sách
-            const result = await getMenuItemsByBranch(branchId, page, pageSize, categoryId);
+            const result = await getMenuItemsByBranch(branchId, page, pageSize, categoryId, true);
             setMenuItems(result.data);
             setTotalPages(result.totalPages);
         } catch {

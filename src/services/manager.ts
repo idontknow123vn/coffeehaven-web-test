@@ -40,6 +40,45 @@ const getEmployeesByBranch = async (branchId: number, role: string | null, page:
     }
 };
 
+const countEmployeesInBranch = async (branchId: number) => {
+    try {
+        const result = await manager(`/count-employees/${branchId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error) {
+        console.error("Error counting employees in branch:", error);
+        throw error;
+    }
+}
+
+const changeEmployeeStatus = async (employeeId: number, status: boolean, inactiveReason: string) => {
+    try {
+        const result = await manager(`/change-employee-status`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                employeeId: employeeId,
+                status: status ? "Active" : "Inactive",
+                inactiveReason: inactiveReason || null,
+            }),
+        });
+        return result;
+    } catch (error) {
+        console.error("Error changing employee status:", error);
+        throw error;
+    }
+}
+
 const getMenuItemsNotInBranch = async (
     branchId: number,
     categoryId = 0,
@@ -379,6 +418,8 @@ const updateEmployeeSalary = async (
 export {
     getBranchDetails,
     getEmployeesByBranch,
+    countEmployeesInBranch,
+    changeEmployeeStatus,
     getMenuItemsNotInBranch,
     addItemToBranch,
     getShiftByBranchInWeek,

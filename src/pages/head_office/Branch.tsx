@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getBranches } from "../../services/head-office";
+import { getBranches, changeBranchStatus } from "../../services/head-office";
 import ModalCreateBranch from "../../components/ModalCreateBranch";
 import LogoutButton from "../../components/LogoutButton";
 import ModalAddEmployee from "../../components/ModalAddEmployee";
@@ -14,6 +14,7 @@ interface ApiBranch {
     managerName: string;
     totalEmployees: number;
     multiplier?: number;
+    isActive?: string; // Thêm trường status nếu cần
 }
 
 interface Branch {
@@ -24,6 +25,7 @@ interface Branch {
     manager: string;
     employees: number;
     multiplier?: number;
+    status?: string; // Thêm trường status nếu cần
 }
 
 const BranchesPage: React.FC = () => {
@@ -45,6 +47,7 @@ const BranchesPage: React.FC = () => {
                     manager: branch.managerName,
                     employees: branch.totalEmployees,
                     multiplier: branch.multiplier,
+                    status: branch.isActive,
                 })));
             }
         } catch (error) {
@@ -55,6 +58,19 @@ const BranchesPage: React.FC = () => {
     useEffect(() => {
         fetchBranches();
     }, [fetchBranches]);
+
+    const handleStatusClick = async (branch: Branch) => {
+        if (branch.status === "active") {
+            if (window.confirm("Bạn có chắc muốn đóng cửa chi nhánh?")) {
+                try {
+                    await changeBranchStatus(branch.id);
+                    await fetchBranches();
+                } catch {
+                    alert("Có lỗi xảy ra khi thay đổi trạng thái chi nhánh.");
+                }
+            }
+        }
+    };
 
     return (
         <div className="flex-1 p-6">
@@ -79,7 +95,7 @@ const BranchesPage: React.FC = () => {
                         <th className="p-2 text-left">Quản lý</th>
                         <th className="p-2 text-left">Số nhân viên</th>
                         <th className="p-2 text-left">Hệ số</th>
-                        {/* <th className="p-2 text-left">Doanh thu</th> */}
+                        <th className="p-2 text-left">Trạng thái</th>
                         <th className="p-2 text-left"></th>
                     </tr>
                 </thead>
@@ -102,8 +118,8 @@ const BranchesPage: React.FC = () => {
                                         Bổ nhiệm quản lý
                                     </button>
                                 ) : (
-                                    <>
-                                        {branch.manager}
+                                    <div className="flex justify-between items-center">
+                                        <p>{branch.manager}</p>
                                         <button
                                             className="ml-2 text-blue-500 underline text-xs"
                                             onClick={() => {
@@ -113,12 +129,17 @@ const BranchesPage: React.FC = () => {
                                         >
                                             Đổi quản lý
                                         </button>
-                                    </>
+                                    </div>
                                 )}
                             </td>
                             <td className="p-2">{branch.employees}</td>
                             <td className="p-2">{branch.multiplier ?? '-'}</td>
-                            {/* <td className="p-2">{branch.revenue}</td> */}
+                            <td
+                                className="p-2 cursor-pointer select-none"
+                                onClick={() => handleStatusClick(branch)}
+                            >
+                                {branch.status}
+                            </td>
                             <td className="p-2">👁️</td>
                         </tr>
                     ))}
