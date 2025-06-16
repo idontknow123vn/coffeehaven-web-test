@@ -23,12 +23,13 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [role, setRole] = useState(addType === "Branch_Manager" ? "Branch_Manager" : "");
+  const [salary, setSalary] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (addType === "employee") {
-        const res = await addEmployee({ email, password, name, phoneNumber, role, branchId });
+        const res = await addEmployee({ email, password, name, phoneNumber, role, branchId, salary });
         if (res && res.data && res.data.message == "Thêm thành công.") {
           onAdd({ email, password, name, phoneNumber, role, branchId });
         } else {
@@ -36,7 +37,7 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
           return;
         }
       } else if (addType === "Branch_Manager") {
-        const res = await addBranchManager({ email, password, name, phoneNumber, role: "Branch_Manager", branchId });
+        const res = await addBranchManager({ email, password, name, phoneNumber, role: "Branch_Manager", branchId, salary });
         if (res && res.data && res.data.message == "Thêm thành công.") {
           onAdd({ email, password, name, phoneNumber, role: "Branch_Manager", branchId });
         } else {
@@ -49,8 +50,9 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
       setName("");
       setPhoneNumber("");
       setRole(addType === "Branch_Manager" ? "Branch_Manager" : "");
+      setSalary(0);
       onClose();
-    } catch (error) {
+    } catch {
       alert("Có lỗi xảy ra khi thêm nhân sự!");
     }
   };
@@ -93,6 +95,10 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
           {addType === "Branch_Manager" && (
             <input type="hidden" value="Branch_Manager" />
           )}
+          <div>
+            <label className="block text-sm font-medium mb-1">Mức lương</label>
+            <input value={salary} onChange={e => setSalary(Number(e.target.value))} className="w-full border rounded p-2" required type="number" min={0} />
+          </div>
           <div className="flex justify-end gap-2 mt-6">
             <button type="button" onClick={onClose} className="bg-gray-300 text-black px-4 py-2 rounded">Hủy</button>
             <button type="submit" className="bg-orange-500 text-white px-4 py-2 rounded">Thêm</button>

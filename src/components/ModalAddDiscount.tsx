@@ -15,7 +15,7 @@ interface ModalAddDiscountProps {
 
 interface Category {
   id: number;
-  name: string;
+  categoryName: string;
 }
 
 interface Branch {
@@ -204,8 +204,8 @@ const ModalAddDiscount: React.FC<ModalAddDiscountProps> = ({ open, onClose, onSu
                 className="border rounded p-2 w-full h-32"
                 required
               >
-                {categories.filter(c => c.name.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                {categories.filter(c => c.categoryName.toLowerCase().includes(categorySearch.toLowerCase())).map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.categoryName}</option>
                 ))}
               </select>
             </div>

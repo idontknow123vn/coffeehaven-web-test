@@ -19,6 +19,7 @@ interface OrderDetail {
 interface ApiOrder {
     orderId: number;
     branchId: number;
+    branchName: string;
     status: string;
     totalPrice: number;
     orderDate: string;
@@ -70,6 +71,7 @@ const OrdersPage: React.FC = () => {
                     setOrders(apiOrders.map((order) => ({
                         id: order.orderId,
                         branchId: order.branchId,
+                        branchName: order.branchName,
                         status: order.status,
                         totalPrice: order.totalPrice,
                         createdAt: order.orderDate,
@@ -179,7 +181,7 @@ const OrdersPage: React.FC = () => {
                     {orders.map((order, index) => (
                         <tr key={index} className="border-b">
                             <td className="p-2">{order.id}</td>
-                            <td className="p-2">{order.branchId}</td>
+                            <td className="p-2">{order.branchName}</td>
                             <td className="p-2">
                                 {(order.employeeName && order.employeePhone)
                                     ? `${order.employeeName} (${order.employeePhone})`
@@ -192,6 +194,8 @@ const OrdersPage: React.FC = () => {
                                     className={
                                         order.status === "Preparing"
                                             ? "text-yellow-500"
+                                            : order.status === "Delivering"
+                                            ? "text-blue-500"
                                             : "text-green-500"
                                     }
                                 >

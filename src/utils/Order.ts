@@ -1,6 +1,7 @@
 export interface Order {
     id: number;
     branchId: number;
+    branchName: string;
     status: string;
     totalPrice: number;
     createdAt: string;

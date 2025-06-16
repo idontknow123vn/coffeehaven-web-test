@@ -65,7 +65,7 @@ const DiscountPage: React.FC = () => {
         <div className="flex-1 p-6">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold mb-4">
-                    Danh sách mã giảm giá
+                    Danh sách đợt giảm giá
                 </h2>
                 <LogoutButton />
             </div>
@@ -74,7 +74,7 @@ const DiscountPage: React.FC = () => {
                 className="mb-4 px-4 py-2 bg-orange-500 rounded hover:bg-orange-600"
                 onClick={() => setShowAddModal(true)}
             >
-                + Thêm mã giảm giá
+                + Thêm đợt giảm giá
             </button>
             <ModalAddDiscount
                 open={showAddModal}

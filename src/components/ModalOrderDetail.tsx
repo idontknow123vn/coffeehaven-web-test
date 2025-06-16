@@ -11,7 +11,7 @@ const ModalOrderDetail: React.FC<{
     const [order, setOrder] = useState<{
         id: string;
         type: string;
-        branch: number;
+        branch: string;
         time: string;
         items: { name: string; price: string }[];
         total: string;
@@ -28,7 +28,7 @@ const ModalOrderDetail: React.FC<{
             setOrder({
                 id: _order.id.toString(),
                 type: _order.customerInfo ? "Online" : "Tại quầy",
-                branch: _order.branchId,
+                branch: _order.branchName,
                 time: _order.createdAt,
                 items: (res.data.data || []).map((item: any) => ({
                     name: item.menuItem.name,
@@ -106,12 +106,14 @@ const ModalOrderDetail: React.FC<{
                         <p className="text-gray-700">{order.status}</p>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium">Nhân viên tạo đơn</label>
-                        <p className="text-gray-700">
-                            {_order?.employeeName && _order?.employeePhone
-                              ? `${_order.employeeName} (${_order.employeePhone})`
-                              : "-"}
-                        </p>
+                      <label className="block text-sm font-medium">
+                        {order.type === "Online" ? "Nhân viên giao hàng" : "Nhân viên tạo đơn"}
+                      </label>
+                      <p className="text-gray-700">
+                        {_order?.employeeName && _order?.employeePhone
+                          ? `${_order.employeeName} (${_order.employeePhone})`
+                          : "-"}
+                      </p>
                     </div>
                     {order.receiverInfo && (
                       <div>

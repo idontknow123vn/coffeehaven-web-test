@@ -345,74 +345,7 @@ const Staff: React.FC = () => {
               >
                 <MdShoppingCart size={24} />
                 Đơn hàng
-              </button>
-              {/* <button
-                onClick={() => setActiveScreen('schedule')}
-                style={{
-                  padding: '12px 20px',
-                  background: activeScreen === 'schedule' ? '#8B4513' : 'transparent',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#FFFFFF',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontFamily: 'Roboto, sans-serif',
-                  fontWeight: 'bold',
-                  textAlign: 'left',
-                  transition: 'all 0.3s ease',
-                  outline: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}
-                onMouseOver={(e) => {
-                  if (activeScreen !== 'schedule') {
-                    e.currentTarget.style.background = '#FFA07A';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (activeScreen !== 'schedule') {
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
-              >
-                <BsCalendarCheck size={24} />
-                Ca làm việc
-              </button> */}
-              <button
-                onClick={() => setActiveScreen('preparing')}
-                style={{
-                  padding: '12px 20px',
-                  background: activeScreen === 'preparing' ? '#8B4513' : 'transparent',
-                  border: 'none',
-                  borderRadius: '8px',
-                  color: '#FFFFFF',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontFamily: 'Roboto, sans-serif',
-                  fontWeight: 'bold',
-                  textAlign: 'left',
-                  transition: 'all 0.3s ease',
-                  outline: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}
-                onMouseOver={(e) => {
-                  if (activeScreen !== 'preparing') {
-                    e.currentTarget.style.background = '#FFA07A';
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (activeScreen !== 'preparing') {
-                    e.currentTarget.style.background = 'transparent';
-                  }
-                }}
-              >
-                <MdShoppingCart size={24} />
-                Đơn đang chuẩn bị
-              </button>
-            </>
+              </button>            </>
           )}
           <button
             onClick={() => setActiveScreen('myshift')}
@@ -852,18 +785,6 @@ const Staff: React.FC = () => {
                           </button>
                           {invoice.status !== 'completed' && (
                             <>
-                              <button
-                                style={{
-                                  background: '#98FF98',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  padding: '4px 8px',
-                                  cursor: 'pointer',
-                                  color: '#000'
-                                }}
-                              >
-                                Thanh toán
-                              </button>
                               <button
                                 onClick={() => {
                                   setSelectedInvoice(invoice);

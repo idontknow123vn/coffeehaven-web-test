@@ -1,1 +1,1 @@
-export const baseURL = 'http://192.168.50.70:8080'; // Replace with your actual base URL
+export const baseURL = 'http://localhost:8080'; // Replace with your actual base URL

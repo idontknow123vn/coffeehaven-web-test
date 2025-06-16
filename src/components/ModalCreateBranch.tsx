@@ -11,6 +11,7 @@ const ModalCreateBranch: React.FC<ModalCreateBranchProps> = ({ isOpen, onClose, 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
+  const [multiplier, setMultiplier] = useState(1);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,13 +19,15 @@ const ModalCreateBranch: React.FC<ModalCreateBranchProps> = ({ isOpen, onClose, 
       await createBranch({ 
         branchName: name, 
         branchAddress: address, 
-        branchPhoneNumber: phone });
+        branchPhoneNumber: phone,
+        multiplier: multiplier
+      });
       onCreate({ name, address, phone });
       setName("");
       setAddress("");
       setPhone("");
       onClose();
-    } catch (error) {
+    } catch {
       alert("Tạo chi nhánh thất bại!");
     }
   };
@@ -47,6 +50,18 @@ const ModalCreateBranch: React.FC<ModalCreateBranchProps> = ({ isOpen, onClose, 
           <div>
             <label className="block text-sm font-medium mb-1">Số điện thoại</label>
             <input value={phone} onChange={e => setPhone(e.target.value)} className="w-full border rounded p-2" required />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Hệ số (multiplier)</label>
+            <input
+              type="number"
+              min={0.1}
+              step={0.1}
+              value={multiplier}
+              onChange={e => setMultiplier(Number(e.target.value))}
+              className="w-full border rounded p-2"
+              required
+            />
           </div>
           <div className="flex justify-end gap-2 mt-6">
             <button type="button" onClick={onClose} className="bg-gray-300 text-black px-4 py-2 rounded">Hủy</button>

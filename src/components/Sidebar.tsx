@@ -28,7 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isProfile = false, name }) => {
     { name: "Thực đơn", icon: "🍽️", path: "/head-office/menu" },
     { name: "Chi nhánh", icon: "🏢", path: "/head-office/branches" },
     { name: "Nhân sự", icon: "👥", path: "/head-office/employees" },
-    { name: "Mã giảm giá", icon: "💸", path: "/head-office/discounts" },
+    { name: "Đợt giảm giá", icon: "💸", path: "/head-office/discounts" },
     { name: "Thông tin cá nhân", icon: "👤", path: "/head-office/profile" },
   ];
 
