@@ -5,7 +5,10 @@ const createAxiosInstance = (servicePath: string) => {
   return axios.create({
     baseURL: `${baseURL}/${servicePath}`,
     responseType: "json",
-    withCredentials: true,
+    headers: {
+      "ngrok-skip-browser-warning": "true", // Thêm dòng này
+    },
+    // withCredentials: true,
   });
 };
 
