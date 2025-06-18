@@ -55,4 +55,38 @@ const _updateProfile = async (data: any) => {
     }
 };
 
-export { _login, _logout, _updateProfile };
+const _forgotPassword = async (email: string) => {
+    try {
+        const result = await identity("/forgot-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            data: JSON.stringify({ email, purpose: "FORGOT_PASSWORD" }),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Forgot password error:", error);
+        throw error;
+    }
+}
+
+const _resetPassword = async (email: string, otp: string) => {
+    try {
+        const result = await identity("/reset-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            data: JSON.stringify({ email, otp, userType: "EMPLOYEE"}),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Reset password error:", error);
+        throw error;
+    }
+};
+
+export { _login, _logout, _updateProfile, _forgotPassword, _resetPassword };

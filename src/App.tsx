@@ -24,6 +24,8 @@ import HeadOfficeEmployeePage from "./pages/head_office/Employee";
 import HeadOfficeLayout from "./layouts/HeadOfficeLayout";
 import ManagerLayout from "./layouts/ManagerLayout";
 
+import ForgotPassword from './pages/ForgotPassword';
+
 function App() {
     // const [count, setCount] = useState(0)
 
@@ -32,6 +34,7 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
 
                     {/* Head Office Routes */}
                     <Route

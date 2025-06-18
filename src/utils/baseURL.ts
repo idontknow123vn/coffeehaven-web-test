@@ -1,1 +1,1 @@
-export const baseURL = 'http://localhost:8080'; // Replace with your actual base URL
+export const baseURL = 'https://8372-2405-4802-a096-f3d0-b85f-f04d-1fb4-1c26.ngrok-free.app'; // Replace with your actual base URL

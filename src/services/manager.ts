@@ -377,8 +377,8 @@ const reassignShift = async (
                 Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
-                oldEmployeeId: oldEmployeeId,
-                newEmployeeId: newEmployeeId,
+                fromEmployeeId: oldEmployeeId,
+                toEmployeeId: newEmployeeId,
                 shiftId: shiftId,
                 shiftDate: date,
             }),

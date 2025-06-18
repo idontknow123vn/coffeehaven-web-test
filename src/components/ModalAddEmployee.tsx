@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { addEmployee } from "../services/manager";
 import { addBranchManager } from "../services/head-office";
+import { roles } from "../data/roles";
 
 interface ModalAddEmployeeProps {
   isOpen: boolean;
@@ -87,8 +88,11 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
               <label className="block text-sm font-medium mb-1">Chức vụ</label>
               <select value={role} onChange={e => setRole(e.target.value)} className="w-full border rounded p-2" required>
                 <option value="">Chọn chức vụ</option>
-                <option value="Counter_Staff">Nhân viên quầy</option>
-                <option value="Delivery_Staff">Nhân viên giao hàng</option>
+                {Object.values(roles)
+                  .filter(r => r.value !== "Branch_Manager" && r.value !== "Head_Office")
+                  .map(r => (
+                    <option key={r.value} value={r.value}>{r.label}</option>
+                  ))}
               </select>
             </div>
           )}

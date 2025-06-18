@@ -40,7 +40,10 @@ interface MenuItem {
 const Staff: React.FC = () => {
   const [order, setOrder] = useState<OrderItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<0 | 1 | 2 | 3 | 4>(0);
-  const [activeScreen, setActiveScreen] = useState<'order' | 'invoice' | 'schedule' | 'account' | 'preparing' | 'myshift'>('order');
+  const { id: branchId, userRole } = useAuth();
+  const { userId: userId } = useAuth();
+  const defaultScreen = (userRole === 'Barista' || userRole === 'Server') ? 'myshift' : 'order';
+  const [activeScreen, setActiveScreen] = useState<'order' | 'invoice' | 'schedule' | 'account' | 'preparing' | 'myshift'>(defaultScreen);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -53,8 +56,6 @@ const Staff: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [discountToday, setDiscountToday] = useState<Discount | null>(null);
-  const { id: branchId, userRole } = useAuth();
-  const { userId: userId } = useAuth();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -428,7 +429,7 @@ const Staff: React.FC = () => {
         marginLeft: '250px',
         minHeight: '100vh'
       }}>
-        {activeScreen === 'order' ? (
+        {!(userRole === 'Barista' || userRole === 'Server') && activeScreen === 'order' ? (
           <>
             {/* Order Content */}
             <div style={{ 

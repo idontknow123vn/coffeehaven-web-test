@@ -265,7 +265,8 @@ const ShiftPage: React.FC = () => {
                         Tuần trước
                     </button>
                     <span className="font-semibold text-lg">
-                        {weekDates[0].toLocaleDateString("vi-VN")} - {weekDates[6].toLocaleDateString("vi-VN")}
+                        {weekDates[0].toLocaleDateString("vi-VN")} -{" "}
+                        {weekDates[6].toLocaleDateString("vi-VN")}
                     </span>
                     <button
                         className="px-3 py-1 bg-orange-500 text-white rounded"
@@ -307,49 +308,91 @@ const ShiftPage: React.FC = () => {
                                         shift.id
                                     );
                                     // Lấy thông tin chi tiết nhân viên trong cell
-                                    const employeeObjs = shiftAssignments.filter(a => a.shiftId === shift.id && a.shiftDate === dateStr);
+                                    const employeeObjs =
+                                        shiftAssignments.filter(
+                                            (a) =>
+                                                a.shiftId === shift.id &&
+                                                a.shiftDate === dateStr
+                                        );
                                     return (
                                         <td
                                             key={idx}
                                             className="p-2 text-sm text-center min-h-[40px] cursor-pointer hover:bg-orange-100 whitespace-pre-line"
                                             // Không mở modal sửa cell khi click vào tên nhân viên nữa
-                                            onClick={e => {
+                                            onClick={(e) => {
                                                 // Nếu click vào vùng trống (không phải tên nhân viên), mới mở modal sửa cell
-                                                if ((e.target as HTMLElement).dataset.empid === undefined) {
-                                                    handleEditCell(dateStr, shift.name, shift.id);
+                                                if (
+                                                    (e.target as HTMLElement)
+                                                        .dataset.empid ===
+                                                    undefined
+                                                ) {
+                                                    handleEditCell(
+                                                        dateStr,
+                                                        shift.name,
+                                                        shift.id
+                                                    );
                                                 }
                                             }}
                                         >
                                             {employeeObjs.length > 0 ? (
-                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                                    {employeeObjs.map((emp, i) => (
-                                                        <span
-                                                            key={emp.employeeId}
-                                                            data-empid={emp.employeeId}
-                                                            style={{
-                                                                color: '#1d3557',
-                                                                cursor: 'pointer',
-                                                                textDecoration: emp.isPresent ? 'underline' : 'none',
-                                                                marginBottom: 2,
-                                                                display: 'inline-block',
-                                                            }}
-                                                            onClick={e => {
-                                                                e.stopPropagation();
-                                                                setReassignModal({
-                                                                    date: dateStr,
-                                                                    shiftId: shift.id,
-                                                                    oldEmployeeId: emp.employeeId,
-                                                                    oldEmployeeName: emp.employeeName,
-                                                                });
-                                                                setNewEmployeeId(null);
-                                                            }}
-                                                        >
-                                                            {emp.employeeName}
-                                                        </span>
-                                                    ))}
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        gap: 2,
+                                                    }}
+                                                >
+                                                    {employeeObjs.map(
+                                                        (emp, i) => (
+                                                            <span
+                                                                key={
+                                                                    emp.employeeId
+                                                                }
+                                                                data-empid={
+                                                                    emp.employeeId
+                                                                }
+                                                                style={{
+                                                                    color: "#1d3557",
+                                                                    cursor: "pointer",
+                                                                    textDecoration:
+                                                                        emp.isPresent
+                                                                            ? "underline"
+                                                                            : "none",
+                                                                    marginBottom: 2,
+                                                                    display:
+                                                                        "inline-block",
+                                                                }}
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
+                                                                    e.stopPropagation();
+                                                                    setReassignModal(
+                                                                        {
+                                                                            date: dateStr,
+                                                                            shiftId:
+                                                                                shift.id,
+                                                                            oldEmployeeId:
+                                                                                emp.employeeId,
+                                                                            oldEmployeeName:
+                                                                                emp.employeeName,
+                                                                        }
+                                                                    );
+                                                                    setNewEmployeeId(
+                                                                        null
+                                                                    );
+                                                                }}
+                                                            >
+                                                                {
+                                                                    emp.employeeName
+                                                                }
+                                                            </span>
+                                                        )
+                                                    )}
                                                 </div>
                                             ) : (
-                                                <span className="text-gray-400">-</span>
+                                                <span className="text-gray-400">
+                                                    -
+                                                </span>
                                             )}
                                         </td>
                                     );
@@ -657,20 +700,41 @@ const ShiftPage: React.FC = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-lg p-6 w-[400px]">
                         <h3 className="text-xl font-semibold mb-4">
-                            Thay người làm cho {reassignModal.oldEmployeeName} ({reassignModal.date})
+                            Thay người làm cho {reassignModal.oldEmployeeName} (
+                            {reassignModal.date})
                         </h3>
                         <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">Chọn nhân viên thay thế</label>
+                            <label className="block text-sm font-medium mb-1">
+                                Chọn nhân viên thay thế
+                            </label>
                             <select
-                                value={newEmployeeId ?? ''}
-                                onChange={e => setNewEmployeeId(Number(e.target.value))}
+                                value={newEmployeeId ?? ""}
+                                onChange={(e) =>
+                                    setNewEmployeeId(Number(e.target.value))
+                                }
                                 className="w-full border rounded p-2"
                             >
                                 <option value="">-- Chọn nhân viên --</option>
                                 {employees
-                                    .filter(emp => emp.id !== reassignModal.oldEmployeeId && emp.role === (shiftAssignments.find(a => a.employeeId === reassignModal.oldEmployeeId && a.shiftId === reassignModal.shiftId && a.shiftDate === reassignModal.date)?.employeeRole))
-                                    .map(emp => (
-                                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                                    .filter(
+                                        (emp) =>
+                                            emp.id !==
+                                                reassignModal.oldEmployeeId &&
+                                            emp.role ===
+                                                shiftAssignments.find(
+                                                    (a) =>
+                                                        a.employeeId ===
+                                                            reassignModal.oldEmployeeId &&
+                                                        a.shiftId ===
+                                                            reassignModal.shiftId &&
+                                                        a.shiftDate ===
+                                                            reassignModal.date
+                                                )?.employeeRole
+                                    )
+                                    .map((emp) => (
+                                        <option key={emp.id} value={emp.id}>
+                                            {emp.name}
+                                        </option>
                                     ))}
                             </select>
                         </div>
@@ -686,16 +750,23 @@ const ShiftPage: React.FC = () => {
                                 className="bg-orange-500 text-white px-4 py-2 rounded"
                                 disabled={!newEmployeeId || reassignLoading}
                                 onClick={async () => {
-                                    if (!reassignModal || !newEmployeeId) return;
+                                    if (!reassignModal || !newEmployeeId)
+                                        return;
                                     setReassignLoading(true);
+                                    console.log('oldEmployeeId:', reassignModal.oldEmployeeId, 'newEmployeeId:', newEmployeeId, 'shiftId:', reassignModal.shiftId, 'date:', reassignModal.date);
                                     await reassignShift(
                                         reassignModal.oldEmployeeId,
                                         newEmployeeId,
                                         reassignModal.shiftId,
                                         reassignModal.date
                                     );
-                                    await getShiftByBranchInWeek(branchId, currentDate)
-                                        .then((res) => setShiftAssignments(res.data.data))
+                                    await getShiftByBranchInWeek(
+                                        branchId,
+                                        currentDate
+                                    )
+                                        .then((res) =>
+                                            setShiftAssignments(res.data.data)
+                                        )
                                         .catch(() => setShiftAssignments([]));
                                     setReassignLoading(false);
                                     setReassignModal(null);

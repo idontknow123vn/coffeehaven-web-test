@@ -18,5 +18,15 @@ export const roles = {
         value: "Head_Office",
         label: "Quản lý tổng",
         description: "Quản lý toàn bộ hệ thống"
-    }
+    },
+    "Barista": {
+        value: "Barista",
+        label: "Nhân viên pha chế",
+        description: "Pha chế đồ uống và đảm bảo chất lượng sản phẩm"
+    },
+    "Server": {
+        value: "Server",
+        label: "Nhân viên phục vụ",
+        description: "Phục vụ khách hàng tại cửa hàng"
+    },
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getBranches, getEmployeesByBranch, transferEmployeeToBranch } from "../../services/head-office";
+import { getBranches, getEmployeesByBranch, transferEmployeeToBranch, updateManagerSalary } from "../../services/head-office";
 import { roles } from "../../data/roles";
 import LogoutButton from "../../components/LogoutButton";
 
@@ -20,6 +20,9 @@ const HeadOfficeEmployeePage: React.FC = () => {
   const [showTransfer, setShowTransfer] = useState<{id: number, show: boolean}>({id: -1, show: false});
   const [transferBranch, setTransferBranch] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showSalaryModal, setShowSalaryModal] = useState<{id: number, show: boolean}>({id: -1, show: false});
+  const [salaryInput, setSalaryInput] = useState(0);
+  const [salaryLoading, setSalaryLoading] = useState(false);
 
   useEffect(() => {
     getBranches().then(res => setBranches(res.data.data || []));
@@ -131,6 +134,18 @@ const HeadOfficeEmployeePage: React.FC = () => {
                   >
                     Chuyển chi nhánh
                   </button>
+                  {String(employee.role) === 'Branch_Manager' && employeeFilter === 'Branch_Manager' && (
+                    <button
+                      className="ml-2 px-2 py-1 bg-orange-500 text-white rounded text-xs"
+                      onClick={e => {
+                        e.stopPropagation();
+                        setShowSalaryModal({ id: employee.id as number, show: true });
+                        setSalaryInput(Number(employee.salary) || 0);
+                      }}
+                    >
+                      Cập nhật lương
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -195,6 +210,50 @@ const HeadOfficeEmployeePage: React.FC = () => {
               <button
                 className="px-4 py-2 bg-gray-300 text-black rounded text-sm"
                 onClick={() => setShowTransfer({ id: -1, show: false })}
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal cập nhật lương */}
+      {showSalaryModal.show && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white border rounded shadow p-6 min-w-[320px] relative">
+            <h3 className="text-lg font-semibold mb-4">Cập nhật lương quản lý chi nhánh</h3>
+            <input
+              type="number"
+              className="border rounded p-2 mb-4 w-full"
+              value={salaryInput}
+              min={0}
+              onChange={e => setSalaryInput(Number(e.target.value))}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded text-sm"
+                onClick={async () => {
+                  setSalaryLoading(true);
+                  await updateManagerSalary(showSalaryModal.id, salaryInput);
+                  setShowSalaryModal({ id: -1, show: false });
+                  setSalaryLoading(false);
+                  setLoading(true);
+                  getEmployeesByBranch(branchId, employeeFilter, page, pageSize)
+                    .then(res => {
+                      setEmployees(res.data.data || []);
+                      setTotalPages(res.data.totalPages || 1);
+                    })
+                    .finally(() => setLoading(false));
+                }}
+                disabled={salaryLoading}
+              >
+                Xác nhận
+              </button>
+              <button
+                className="px-4 py-2 bg-gray-300 text-black rounded text-sm"
+                onClick={() => setShowSalaryModal({ id: -1, show: false })}
+                disabled={salaryLoading}
               >
                 Hủy
               </button>

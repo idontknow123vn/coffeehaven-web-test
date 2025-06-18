@@ -435,6 +435,29 @@ const transferEmployeeToBranch = async (employeeId: number, newBranchId: number)
     }
 }
 
+const updateManagerSalary = async (
+    managerId: number,
+    newSalary: number
+) => {
+    try {
+        const result = await headOffice(`/manager/${managerId}/salary`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+            data: JSON.stringify({
+                newSalary: newSalary,
+            }),
+        });
+        return result;
+    } catch (error) {
+        console.error("Error updating employee salary:", error);
+        throw error;
+    }
+}
+
 export {
     getBranches,
     createBranch,
@@ -456,5 +479,6 @@ export {
     getEmployeesByBranch,
     getEmployeesNotManagers,
     changeBranchManager,
-    transferEmployeeToBranch
+    transferEmployeeToBranch,
+    updateManagerSalary
 };

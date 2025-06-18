@@ -1,6 +1,6 @@
 // src/pages/Login.tsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
@@ -64,6 +64,11 @@ const Login = () => {
                     >
                         Đăng nhập
                     </button>
+                    <div className="text-right mt-2">
+                        <Link to="/forgot-password" className="text-blue-500 underline">
+                            Quên mật khẩu?
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>
