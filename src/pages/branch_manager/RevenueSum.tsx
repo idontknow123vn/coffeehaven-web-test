@@ -84,12 +84,15 @@ const RevenueSum: React.FC = () => {
                                 dayOfWeek: string;
                                 date: string;
                                 totalRevenue: number;
+                                totalOrder: number;
                             }>
                         ).find((d) => d.dayOfWeek === dow);
                         return {
                             day: dayOfWeekMap[dow],
                             value: found ? found.totalRevenue : 0,
                             date: found ? found.date : "",
+                            orderCount: found
+                                ? found.totalOrder : 0,
                         };
                     })
                 );

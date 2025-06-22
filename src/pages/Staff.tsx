@@ -5,13 +5,14 @@ import { MdShoppingCart, MdPerson, MdRestaurantMenu, MdVisibility, MdDelete } fr
 import { BsCalendarCheck } from 'react-icons/bs';
 import { getMenuItemsByBranch } from '../services/menu-items';
 import { useAuth } from '../contexts/AuthContext';
-import { createOrder, getOrderByIdBranch } from '../services/staff_order';
+import { createOrder, getOrderByIdBranch, getInplaceOrdersByBranch } from '../services/staff_order';
 import LogoutButton from '../components/LogoutButton';
 import ViewPreparingOrder from "./staff/ViewPreparingOrder";
 import Profile from './branch_manager/Profile';
 import StaffShift from './staff/StaffShift';
 import { getDiscountToday } from "../services/discount";
 import type { Discount } from "../utils/Discount";
+import ModalOrderDetail from '../components/ModalOrderDetail';
 
 interface OrderItem {
   id: number;
@@ -25,7 +26,9 @@ interface Invoice {
   orderId: string;
   orderDate: string;
   totalPrice: number;
-  status: 'pending' | 'processing' | 'completed';
+  status: string;
+  branchId: number;
+  branchName: string;
 }
 
 interface MenuItem {
@@ -40,7 +43,7 @@ interface MenuItem {
 const Staff: React.FC = () => {
   const [order, setOrder] = useState<OrderItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<0 | 1 | 2 | 3 | 4>(0);
-  const { id: branchId, userRole } = useAuth();
+  const { id: branchId, userRole, } = useAuth();
   const { userId: userId } = useAuth();
   const defaultScreen = (userRole === 'Barista' || userRole === 'Server') ? 'myshift' : 'order';
   const [activeScreen, setActiveScreen] = useState<'order' | 'invoice' | 'schedule' | 'account' | 'preparing' | 'myshift'>(defaultScreen);
@@ -56,6 +59,16 @@ const Staff: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [discountToday, setDiscountToday] = useState<Discount | null>(null);
+
+  // State cho filter ngày hóa đơn tại quầy
+  const [invoiceDate, setInvoiceDate] = useState<string>(() => {
+    const today = new Date();
+    return today.toISOString().slice(0, 10);
+  });
+  // State phân trang hóa đơn tại quầy
+  const [invoicePage, setInvoicePage] = useState<number>(0);
+  const [invoicePageSize, setInvoicePageSize] = useState<number>(10);
+  const [invoiceTotalPages, setInvoiceTotalPages] = useState<number>(0);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -176,21 +189,20 @@ const Staff: React.FC = () => {
   }, [branchId, page, pageSize, selectedCategory]);
 
   useEffect(() => {
-    if (activeScreen === 'invoice' && branchId) {
-      console.log('Fetching invoices for branch:', branchId);
-      // Gọi API lấy danh sách hóa đơn theo chi nhánh
-      getOrderByIdBranch(branchId)
+    if (activeScreen === 'invoice' && branchId && userId) {
+      // Gọi API lấy danh sách hóa đơn tại quầy theo chi nhánh, ngày, phân trang
+      getInplaceOrdersByBranch(branchId, userId, invoiceDate, invoicePage, invoicePageSize)
         .then(res => {
-          console.log('Invoices:', res.data.data);
-          setInvoices(res.data.data); 
-          // Đảm bảo res.data là mảng hóa đơn từ server
+          setInvoices(res.data.data || []);
+          setInvoiceTotalPages(res.data.totalPages || 1);
         })
         .catch(err => {
           setInvoices([]);
-          console.error('Lỗi lấy danh sách hóa đơn:', err);
+          setInvoiceTotalPages(1);
+          console.error('Lỗi lấy danh sách hóa đơn tại quầy:', err);
         });
     }
-  }, [activeScreen, branchId]);
+  }, [activeScreen, branchId, invoiceDate, invoicePage, invoicePageSize]);
 
   // Hàm tính giá đã giảm cho từng item
   const getDiscountedPrice = (item: MenuItem): number => {
@@ -228,6 +240,14 @@ const Staff: React.FC = () => {
       return Math.max(0, item.price - discountValue);
     }
     return item.price;
+  };
+
+  // Hàm format date yyyy-MM-dd cho datepicker
+  const formatDate = (date: string | Date) => {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    const offset = d.getTimezoneOffset();
+    const local = new Date(d.getTime() - offset * 60 * 1000);
+    return local.toISOString().slice(0, 10);
   };
 
   return (
@@ -516,6 +536,22 @@ const Staff: React.FC = () => {
                   );
                 })}
               </div>
+              {/* Hiển thị tên khuyến mãi hôm nay nếu có */}
+              {discountToday?.name && (
+                <div style={{
+                  background: '#ffe5b4',
+                  color: '#8B4513',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  marginBottom: 16,
+                  fontSize: 16,
+                  display: 'inline-block',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+                }}>
+                  🎉 Khuyến mãi hôm nay: {discountToday.name}
+                </div>
+              )}
               {/* Pagination */}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px' }}>
                 <button
@@ -680,7 +716,7 @@ const Staff: React.FC = () => {
               fontSize: '24px',
               fontWeight: 'bold'
             }}>
-              Quản lý đơn hàng Tại quầy
+              Quản lý đơn hàng tại quầy
             </h2>
 
             {/* Toolbar */}
@@ -708,27 +744,13 @@ const Staff: React.FC = () => {
 
               <input 
                 type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                value={invoiceDate}
+                onChange={e => { setInvoiceDate(e.target.value); setInvoicePage(0); }}
                 style={{
                   padding: '8px 12px',
                   borderRadius: '4px',
                   border: '1px solid #ddd',
                   outline: 'none'
-                }}
-              />
-
-              <input 
-                type="text"
-                placeholder="Tìm kiếm..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '4px',
-                  border: '1px solid #ddd',
-                  outline: 'none',
-                  flex: 1
                 }}
               />
             </div>
@@ -810,82 +832,36 @@ const Staff: React.FC = () => {
               </table>
             </div>
 
-            {/* Pagination */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              marginTop: '20px',
-              gap: '10px'
-            }}>
-              <button style={{
-                padding: '8px 12px',
-                background: '#8B4513',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}>
-                Trang 1/5
-              </button>
-            </div>
+            {/* Bộ lọc ngày và phân trang hóa đơn tại quầy */}
+            {activeScreen === 'invoice' && (
+              <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', margin: '24px 0' }}>
+                <button
+                  className="px-2 py-1 bg-orange-500 text-white rounded"
+                  onClick={() => setInvoicePage(p => Math.max(0, p - 1))}
+                  disabled={invoicePage === 0}
+                >
+                  Trang trước
+                </button>
+                <span>Trang {invoicePage + 1}/{invoiceTotalPages}</span>
+                <button
+                  className="px-2 py-1 bg-orange-500 text-white rounded"
+                  onClick={() => setInvoicePage(p => Math.min(invoiceTotalPages - 1, p + 1))}
+                  disabled={invoicePage >= invoiceTotalPages - 1}
+                >
+                  Trang sau
+                </button>
+              </div>
+            )}
 
             {/* Detail Modal */}
             {showDetailModal && selectedInvoice && (
-              <div style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(0,0,0,0.5)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 1000
-              }}>
-                <div style={{
-                  background: '#FFFFFF',
-                  padding: '20px',
-                  borderRadius: '8px',
-                  width: '400px',
-                  maxHeight: '500px',
-                  overflowY: 'auto'
-                }}>
-                  <h3 style={{ 
-                    margin: '0 0 20px 0',
-                    color: '#8B4513'
-                  }}>
-                    Chi tiết đơn hàng {selectedInvoice.orderId}
-                  </h3>
-                  <p>Thời gian: {new Date(selectedInvoice.orderDate).toLocaleString("vi-VN", optionsTimeZone)}</p>
-                  <p>Trạng thái: {getStatusText(selectedInvoice.status)}</p>
-                  <div style={{ margin: '20px 0' }}>
-                    <h4>Danh sách món</h4>
-                    {/* Add items list here */}
-                  </div>
-                  <p style={{ 
-                    fontWeight: 'bold',
-                    color: '#FFA07A'
-                  }}>
-                    Tổng tiền: {selectedInvoice.totalPrice.toLocaleString()}đ
-                  </p>
-                  <button
-                    onClick={() => setShowDetailModal(false)}
-                    style={{
-                      width: '100%',
-                      padding: '8px',
-                      background: '#8B4513',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                      marginTop: '20px'
-                    }}
-                  >
-                    Đóng
-                  </button>
-                </div>
-              </div>
+              <ModalOrderDetail
+                isOpen={showDetailModal}
+                onClose={() => setShowDetailModal(false)}
+                _order={{id: Number(selectedInvoice.orderId), 
+                  createdAt: selectedInvoice.orderDate, 
+                  totalPrice: selectedInvoice.totalPrice, status: selectedInvoice.status}}
+              />
             )}
 
             {/* Cancel Modal */}

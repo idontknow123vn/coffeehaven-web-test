@@ -7,6 +7,7 @@ import {
     deleteEmployeeShift,
     reassignShift,
 } from "../../services/manager";
+import { useAuth } from "../../contexts/AuthContext";
 import LogoutButton from "../../components/LogoutButton";
 
 const ShiftPage: React.FC = () => {
@@ -14,6 +15,7 @@ const ShiftPage: React.FC = () => {
     const [selectedDate, setSelectedDate] = useState<string>("");
     const [shiftType, setShiftType] = useState<string>("");
     const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
+    const {id: branchId} = useAuth(); // TODO: lấy branchId thực tế từ context hoặc props nếu cần
     // State cho ngày được chọn để xem tuần (mặc định là hôm nay)
     const [currentDate, setCurrentDate] = useState<string>(
         new Date().toISOString().slice(0, 10)
@@ -76,7 +78,19 @@ const ShiftPage: React.FC = () => {
         { id: 2, name: "Ca chiều", start: "13:00", end: "17:00" },
         { id: 3, name: "Ca tối", start: "18:00", end: "22:00" },
     ];
-    const branchId = 1; // TODO: lấy branchId thực tế từ context hoặc props nếu cần
+
+        // State filter ngày cho bảng dưới
+    const [filterDate, setFilterDate] = useState<string>("");
+
+    // State cho modal thay người làm trong cell bảng tuần
+    const [reassignModal, setReassignModal] = useState<{
+        date: string;
+        shiftId: number;
+        oldEmployeeId: number;
+        oldEmployeeName: string;
+    } | null>(null);
+    const [newEmployeeId, setNewEmployeeId] = useState<number | null>(null);
+    const [reassignLoading, setReassignLoading] = useState(false);
 
     // Lấy dữ liệu phân ca từ backend khi load hoặc đổi tuần
     useEffect(() => {
@@ -87,7 +101,7 @@ const ShiftPage: React.FC = () => {
 
     // Lấy danh sách nhân viên không phải manager khi mở modal phân ca
     useEffect(() => {
-        if (showAddModal) {
+        if (branchId && (showAddModal || reassignModal)) {
             getEmployeesNotManager(branchId)
                 .then((res) => {
                     // Chỉ lấy id, name, role
@@ -100,7 +114,7 @@ const ShiftPage: React.FC = () => {
                 })
                 .catch(() => setEmployees([]));
         }
-    }, [showAddModal, branchId]);
+    }, [showAddModal, reassignModal, branchId]);
 
     // Hàm lấy danh sách nhân viên cho ca/ngày từ shiftAssignments
     const getEmployeesForCell = (date: string, shiftId: number) => {
@@ -146,7 +160,7 @@ const ShiftPage: React.FC = () => {
             )
         );
         // Sau khi lưu, reload lại dữ liệu phân ca tuần
-        getShiftByBranchInWeek(branchId, currentDate)
+        getShiftByBranchInWeek(branchId!, currentDate)
             .then((res) => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
         setEditCell(null);
@@ -164,7 +178,7 @@ const ShiftPage: React.FC = () => {
             )
         );
         // Sau khi thêm, reload lại dữ liệu phân ca tuần
-        getShiftByBranchInWeek(branchId, currentDate)
+        getShiftByBranchInWeek(branchId!, currentDate)
             .then((res) => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
         setShowAddModal(false);
@@ -203,7 +217,7 @@ const ShiftPage: React.FC = () => {
             editRow.newShiftId,
             editRow.newDate
         );
-        getShiftByBranchInWeek(branchId, currentDate)
+        getShiftByBranchInWeek(branchId!, currentDate)
             .then((res) => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
         setEditRow(null);
@@ -224,23 +238,19 @@ const ShiftPage: React.FC = () => {
             assignment.shiftId,
             assignment.shiftDate
         );
-        getShiftByBranchInWeek(branchId, currentDate)
+        getShiftByBranchInWeek(branchId!, currentDate)
             .then((res) => setShiftAssignments(res.data.data))
             .catch(() => setShiftAssignments([]));
     };
 
-    // State filter ngày cho bảng dưới
-    const [filterDate, setFilterDate] = useState<string>("");
-
-    // State cho modal thay người làm trong cell bảng tuần
-    const [reassignModal, setReassignModal] = useState<{
-        date: string;
-        shiftId: number;
-        oldEmployeeId: number;
-        oldEmployeeName: string;
-    } | null>(null);
-    const [newEmployeeId, setNewEmployeeId] = useState<number | null>(null);
-    const [reassignLoading, setReassignLoading] = useState(false);
+    // Hàm kiểm tra ca đã qua hoặc đang diễn ra (dùng cho reassign)
+    const isShiftPastOrOngoing = (shiftDate: string, shiftId: number) => {
+        const now = new Date();
+        const shift = shiftTypes.find(s => s.id === shiftId);
+        if (!shift) return false;
+        const start = new Date(`${shiftDate}T${shift.start}`);
+        return now >= start; // Nếu đã qua giờ bắt đầu ca thì không cho thay người
+    };
 
     return (
         <div className="flex-1 p-6">
@@ -403,7 +413,7 @@ const ShiftPage: React.FC = () => {
                 </table>
             </div>
             {/* Modal chỉnh sửa ca/ngày trong bảng tuần */}
-            {editCell && (
+            {/* {editCell && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-lg p-6 w-[400px]">
                         <h3 className="text-xl font-semibold mb-4">
@@ -451,7 +461,7 @@ const ShiftPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">Phân ca làm việc</h2>
                 <div className="flex items-center gap-2">
@@ -511,14 +521,20 @@ const ShiftPage: React.FC = () => {
                             <td className="p-2">{a.employeeName}</td>
                             <td className="p-2">
                                 <button
-                                    className="text-blue-500 hover:underline mr-2"
-                                    onClick={() => handleEditRow(a)}
+                                    className={`text-blue-500 hover:underline mr-2${isShiftPastOrOngoing(a.shiftDate, a.shiftId) ? ' opacity-50 cursor-not-allowed' : ''}`}
+                                    onClick={() => {
+                                        if (!isShiftPastOrOngoing(a.shiftDate, a.shiftId)) handleEditRow(a);
+                                    }}
+                                    disabled={isShiftPastOrOngoing(a.shiftDate, a.shiftId)}
                                 >
                                     Sửa
                                 </button>
                                 <button
-                                    className="text-red-500 hover:underline"
-                                    onClick={() => handleDeleteRow(a)}
+                                    className={`text-red-500 hover:underline${isShiftPastOrOngoing(a.shiftDate, a.shiftId) ? ' opacity-50 cursor-not-allowed' : ''}`}
+                                    onClick={() => {
+                                        if (!isShiftPastOrOngoing(a.shiftDate, a.shiftId)) handleDeleteRow(a);
+                                    }}
+                                    disabled={isShiftPastOrOngoing(a.shiftDate, a.shiftId)}
                                 >
                                     Xóa
                                 </button>
@@ -696,7 +712,7 @@ const ShiftPage: React.FC = () => {
                 </div>
             )}
             {/* Modal thay người làm trong cell bảng tuần */}
-            {reassignModal && (
+            {reassignModal && !isShiftPastOrOngoing(reassignModal.date, reassignModal.shiftId) && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg shadow-lg p-6 w-[400px]">
                         <h3 className="text-xl font-semibold mb-4">
@@ -760,16 +776,12 @@ const ShiftPage: React.FC = () => {
                                         reassignModal.shiftId,
                                         reassignModal.date
                                     );
-                                    await getShiftByBranchInWeek(
-                                        branchId,
-                                        currentDate
-                                    )
-                                        .then((res) =>
-                                            setShiftAssignments(res.data.data)
-                                        )
-                                        .catch(() => setShiftAssignments([]));
                                     setReassignLoading(false);
                                     setReassignModal(null);
+                                    // Reload shift assignments
+                                    getShiftByBranchInWeek(branchId, currentDate)
+                                        .then((res) => setShiftAssignments(res.data.data))
+                                        .catch(() => setShiftAssignments([]));
                                 }}
                             >
                                 Xác nhận

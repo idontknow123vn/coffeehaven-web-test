@@ -33,7 +33,10 @@ interface ApiOrder {
 const OrdersPage: React.FC = () => {
     const [locationFilter, setLocationFilter] = useState<string>("Tất cả");
     const [statusFilter, setStatusFilter] = useState<string>("Tất cả");
-    const [date, setDate] = useState<string>("");
+    const [date, setDate] = useState<string>(() => {
+        const today = new Date();
+        return today.toISOString().slice(0, 10);
+    });
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { id: branchId } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
@@ -59,7 +62,7 @@ const OrdersPage: React.FC = () => {
                     const response = await getOrdersByIdBranchAndDate(branchId, dateStr, page, pageSize, statusParam);
                     let apiOrders = response.data.data as ApiOrder[];
                     // Lọc theo location nếu cần
-                    if (locationFilter === "Tài quầy") {
+                    if (locationFilter === "Tại quầy") {
                         apiOrders = apiOrders.filter(order => !order.customerInfo);
                     }
                     // Lọc theo searchTerm nếu có
@@ -127,7 +130,7 @@ const OrdersPage: React.FC = () => {
                     className="border rounded p-2"
                 >
                     <option>Tất cả</option>
-                    <option>Tài quầy</option>
+                    <option>Tại quầy</option>
                 </select>
                 <select
                     value={statusFilter}
@@ -147,7 +150,7 @@ const OrdersPage: React.FC = () => {
                     onChange={(e) => setDate(e.target.value)}
                     className="border rounded p-2"
                 />
-                {date && (
+                {/* {date && (
                     <button
                         type="button"
                         onClick={() => setDate("")}
@@ -155,7 +158,7 @@ const OrdersPage: React.FC = () => {
                     >
                         X
                     </button>
-                )}
+                )} */}
                 <input
                     type="text"
                     value={searchTerm}

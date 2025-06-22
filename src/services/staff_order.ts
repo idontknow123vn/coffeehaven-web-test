@@ -84,10 +84,29 @@ const changeOrderStatus = async (orderId: number, status: string) => {
     }
 };
 
+const getInplaceOrdersByBranch = async (branchId: number, employeeId: number, date: string, page: number, size: number) => {``
+    try {
+        const dateParam = date ? `&date=${encodeURIComponent(date)}` : "";
+        const url = `/inplace-orders?branchId=${branchId}&employeeId=${employeeId}&page=${page}&size=${size}${dateParam}`;
+        const result = await staff(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Get inplace orders by branch error:", error);
+        throw error;
+    }
+}
+
 export {
     createOrder,
     getOrderByIdBranch,
     getOrdersByIdBranchAndDate,
-    
+    getInplaceOrdersByBranch,
     changeOrderStatus,
 };
