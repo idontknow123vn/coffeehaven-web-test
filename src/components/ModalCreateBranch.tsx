@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { createBranch } from "../services/head-office";
+import { toast } from "../toast";
 
 interface ModalCreateBranchProps {
   isOpen: boolean;
@@ -28,7 +29,7 @@ const ModalCreateBranch: React.FC<ModalCreateBranchProps> = ({ isOpen, onClose, 
       setPhone("");
       onClose();
     } catch {
-      alert("Tạo chi nhánh thất bại!");
+      toast.error("Tạo chi nhánh thất bại!");
     }
   };
 

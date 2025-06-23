@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getMenuItemCategories } from "../services/menu-items";
 import { updateItem } from "../services/head-office";
+import { toast } from '../toast';
 
 import type { MenuItem } from "../utils/MenuItem";
 
@@ -51,7 +52,7 @@ const ModalUpdateMenuItem: React.FC<{
         setLoading(true);
         try {
             if (!name.trim() || !price || !category || isNaN(Number(price))) {
-                alert("Vui lòng nhập đầy đủ và đúng định dạng!");
+                toast.error("Vui lòng nhập đầy đủ và đúng định dạng!");
                 setLoading(false);
                 return;
             }
@@ -63,14 +64,14 @@ const ModalUpdateMenuItem: React.FC<{
             const res = await updateItem(menuItem.id, itemData);
             const message = res?.data?.message || "Không rõ kết quả";
             if (message === "Cập nhật thành công.") {
-                alert(message);
+                toast.success(message);
                 if (onSave) onSave();
                 onClose();
             } else {
-                alert(message);
+                toast.error(message);
             }
         } catch {
-            alert("Cập nhật món thất bại!");
+            toast.error("Cập nhật món thất bại!");
         } finally {
             setLoading(false);
         }

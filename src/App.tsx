@@ -23,8 +23,9 @@ import DiscountInBranch from "./pages/branch_manager/DiscountInBranch";
 import HeadOfficeEmployeePage from "./pages/head_office/Employee";
 import HeadOfficeLayout from "./layouts/HeadOfficeLayout";
 import ManagerLayout from "./layouts/ManagerLayout";
-
 import ForgotPassword from './pages/ForgotPassword';
+import { ToastContainer } from 'react-toastify';
+
 
 function App() {
     // const [count, setCount] = useState(0)
@@ -111,6 +112,7 @@ function App() {
                     <Route path="/" element={<Navigate to="/login" replace />} />
                 </Routes>
             </BrowserRouter>
+            <ToastContainer />
         </AuthProvider>
     );
 }

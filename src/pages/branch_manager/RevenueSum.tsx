@@ -65,6 +65,7 @@ const RevenueSum: React.FC = () => {
     const [monthRevenue, setMonthRevenue] = useState<number[]>([]); // doanh thu từng ngày trong tháng
     const [monthLabels, setMonthLabels] = useState<string[]>([]); // nhãn ngày
     const [activeEmployeeCount, setActiveEmployeeCount] = useState<number>(0);
+    const [weekOrderCount, setWeekOrderCount] = useState(0);
 
     useEffect(() => {
         const fetchRevenue = async () => {
@@ -91,8 +92,7 @@ const RevenueSum: React.FC = () => {
                             day: dayOfWeekMap[dow],
                             value: found ? found.totalRevenue : 0,
                             date: found ? found.date : "",
-                            orderCount: found
-                                ? found.totalOrder : 0,
+                            // orderCount: found ? found.totalOrder : 0,
                         };
                     })
                 );
@@ -102,9 +102,16 @@ const RevenueSum: React.FC = () => {
                         0
                     )
                 );
+                setWeekOrderCount(
+                    (res.data.data as Array<{ totalOrder: number }>).reduce(
+                        (sum, d) => sum + d.totalOrder,
+                        0
+                    )
+                );
             } catch {
                 setDailyRevenue([]);
                 setWeekRevenue(0);
+                setWeekOrderCount(0);
             }
         };
         fetchRevenue();
@@ -221,7 +228,14 @@ const RevenueSum: React.FC = () => {
                         <div className="text-3xl font-bold text-orange-500">
                             {weekRevenue.toLocaleString("vi-VN")} VNĐ
                         </div>
-                        
+                    </div>
+                    <div className="bg-white rounded-lg shadow p-6 flex-1 text-center">
+                        <div className="text-gray-500 mb-2">
+                            Tổng số đơn hàng trong tuần
+                        </div>
+                        <div className="text-3xl font-bold text-green-500">
+                            {weekOrderCount.toLocaleString("vi-VN")}
+                        </div>
                     </div>
                     <div className="bg-white rounded-lg shadow p-6 flex-1 text-center">
                         <div className="text-gray-500 mb-2">

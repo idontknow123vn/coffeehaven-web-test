@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { toast } from '../toast';
 
 const Login = () => {
     const [username, setUsername] = useState("");
@@ -11,20 +12,27 @@ const Login = () => {
     const { login } = useAuth();
 
     const handleLogin = () => {
-        setRole("EMPLOYEE")
+        setRole("EMPLOYEE");
         const result = login(username, password, role);
         // Redirect based on role
         result
             .then((value) => {
                 if (value === "Branch_Manager") {
                     navigate("/manager");
-                } else if (value === "Counter_Staff" || value === "Delivery_Staff") {
+                } else if (
+                    value === "Counter_Staff" ||
+                    value === "Delivery_Staff"
+                ) {
                     navigate("/employee-dashboard");
-                } else (
-                    navigate("/head-office")
-                );
+                } else navigate("/head-office");
             })
-            .catch((e) => alert(e));
+            .catch((e) => {
+                if (e?.response?.status === 401) {
+                    toast.error("Sai tài khoản hoặc mật khẩu!");
+                } else {
+                    toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
+                }
+            });
     };
 
     return (
@@ -65,7 +73,10 @@ const Login = () => {
                         Đăng nhập
                     </button>
                     <div className="text-right mt-2">
-                        <Link to="/forgot-password" className="text-blue-500 underline">
+                        <Link
+                            to="/forgot-password"
+                            className="text-blue-500 underline"
+                        >
                             Quên mật khẩu?
                         </Link>
                     </div>

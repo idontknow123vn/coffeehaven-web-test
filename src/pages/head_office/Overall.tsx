@@ -9,7 +9,12 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
-import { getMonthlyRevenueByBranch, getBranches, getOverallMonthlyRevenue, getTotalActiveEmployees } from "../../services/head-office";
+import {
+    getMonthlyRevenueByBranch,
+    getBranches,
+    getOverallMonthlyRevenue,
+    getTotalActiveEmployees,
+} from "../../services/head-office";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutButton from "../../components/LogoutButton";
 
@@ -63,20 +68,25 @@ const RevenueSum: React.FC = () => {
     const [monthLabels, setMonthLabels] = useState<string[]>([]); // nhãn ngày
 
     // State cho chi nhánh
-    const [branches, setBranches] = useState<{ id: number; name: string }[]>([]);
+    const [branches, setBranches] = useState<{ id: number; name: string }[]>(
+        []
+    );
     const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
 
     // State cho doanh thu toàn hệ thống
-    const [overallMonthRevenue, setOverallMonthRevenue] = useState<number[]>([]);
+    const [overallMonthRevenue, setOverallMonthRevenue] = useState<number[]>(
+        []
+    );
     const [overallMonthLabels, setOverallMonthLabels] = useState<string[]>([]);
 
     // State cho tổng số nhân viên đang hoạt động
     const [totalActiveEmployees, setTotalActiveEmployees] = useState<number>(0);
-
+    const [overallMonthOrderCount, setOverallMonthOrderCount] =
+        useState<number>(0);
     // Lấy danh sách chi nhánh khi mount
     useEffect(() => {
         getBranches()
-            .then(res => {
+            .then((res) => {
                 setBranches(res.data.data);
                 if (res.data.data.length > 0) {
                     setSelectedBranch(res.data.data[0].id);
@@ -130,19 +140,41 @@ const RevenueSum: React.FC = () => {
     useEffect(() => {
         const fetchOverallMonthRevenue = async () => {
             try {
-                const res = await getOverallMonthlyRevenue(selectedMonth, selectedYear);
-                const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
-                const labelArr = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
+                const res = await getOverallMonthlyRevenue(
+                    selectedMonth,
+                    selectedYear
+                );
+                const daysInMonth = new Date(
+                    selectedYear,
+                    selectedMonth,
+                    0
+                ).getDate();
+                const labelArr = Array.from(
+                    { length: daysInMonth },
+                    (_, i) => `${i + 1}`
+                );
                 setOverallMonthLabels(labelArr);
                 const revenueArr = labelArr.map((day) => {
-                    const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-                    const found = (res.data.data as Array<{ date: string; totalRevenue: number }>).find((d) => d.date === dateStr);
+                    const dateStr = `${selectedYear}-${String(
+                        selectedMonth
+                    ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                    const found = (
+                        res.data.data as Array<{
+                            date: string;
+                            totalRevenue: number;
+                        }>
+                    ).find((d) => d.date === dateStr);
                     return found ? found.totalRevenue : 0;
                 });
                 setOverallMonthRevenue(revenueArr);
+                const totalOrder = (
+                    res.data.data as Array<{ totalOrder: number }>
+                ).reduce((sum, d) => sum + (d.totalOrder ?? 0), 0);
+                setOverallMonthOrderCount(totalOrder);
             } catch {
                 setOverallMonthLabels([]);
                 setOverallMonthRevenue([]);
+                setOverallMonthOrderCount(0);
             }
         };
         fetchOverallMonthRevenue();
@@ -162,7 +194,10 @@ const RevenueSum: React.FC = () => {
     }, []);
 
     // Tổng doanh thu tháng này (toàn hệ thống)
-    const totalRevenueThisMonth = overallMonthRevenue.reduce((sum, v) => sum + v, 0);
+    const totalRevenueThisMonth = overallMonthRevenue.reduce(
+        (sum, v) => sum + v,
+        0
+    );
 
     // Chart data
     // const chartData = {
@@ -220,6 +255,14 @@ const RevenueSum: React.FC = () => {
                     </div>
                     <div className="bg-white rounded-lg shadow p-6 flex-1 text-center">
                         <div className="text-gray-500 mb-2">
+                            Tổng số đơn hàng tháng này
+                        </div>
+                        <div className="text-3xl font-bold text-green-500">
+                            {overallMonthOrderCount.toLocaleString("vi-VN")}
+                        </div>
+                    </div>
+                    <div className="bg-white rounded-lg shadow p-6 flex-1 text-center">
+                        <div className="text-gray-500 mb-2">
                             Nhân viên đang hoạt động
                         </div>
                         <div className="text-3xl font-bold text-blue-500">
@@ -261,11 +304,15 @@ const RevenueSum: React.FC = () => {
                     <div className="flex gap-2">
                         <select
                             className="border rounded px-2 py-1"
-                            value={selectedBranch ?? ''}
-                            onChange={e => setSelectedBranch(Number(e.target.value))}
+                            value={selectedBranch ?? ""}
+                            onChange={(e) =>
+                                setSelectedBranch(Number(e.target.value))
+                            }
                         >
-                            {branches.map(b => (
-                                <option key={b.id} value={b.id}>{b.name}</option>
+                            {branches.map((b) => (
+                                <option key={b.id} value={b.id}>
+                                    {b.name}
+                                </option>
                             ))}
                         </select>
                         <select

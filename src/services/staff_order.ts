@@ -38,6 +38,7 @@ const getOrderByIdBranch = async (branchId: number) => {
 const getOrdersByIdBranchAndDate = async (
     branchId: number,
     date: string,
+    customerPhone: string | null,
     page: number,
     size: number,
     status: string
@@ -50,7 +51,12 @@ const getOrdersByIdBranchAndDate = async (
                 : "";
         const dateParam =
             date && date !== "all" ? `&date=${encodeURIComponent(date)}` : "";
-        const url = `/get-orders-by-date?${dateParam}&branchId=${branchId}&page=${page}&size=${size}${statusParam}`;
+        // Nếu customerPhone là null hoặc rỗng thì không truyền vào query
+        const customerPhoneParam =
+            customerPhone && customerPhone !== "all"
+                ? `&customerPhone=${encodeURIComponent(customerPhone)}`
+                : "";
+        const url = `/get-orders-by-date?${dateParam}&branchId=${branchId}&page=${page}&size=${size}${statusParam}${customerPhoneParam}`;
         const result = await staff(url, {
             method: "GET",
             headers: {

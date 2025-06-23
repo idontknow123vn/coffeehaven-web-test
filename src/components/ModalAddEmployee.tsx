@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { addEmployee } from "../services/manager";
 import { addBranchManager } from "../services/head-office";
 import { roles } from "../data/roles";
+import { toast } from '../toast';
 
 interface ModalAddEmployeeProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
         if (res && res.data && res.data.message == "Thêm thành công.") {
           onAdd({ email, password, name, phoneNumber, role, branchId });
         } else {
-          alert("Thêm nhân viên thất bại!");
+          toast.error("Thêm nhân viên thất bại!");
           return;
         }
       } else if (addType === "Branch_Manager") {
@@ -42,7 +43,7 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
         if (res && res.data && res.data.message == "Thêm thành công.") {
           onAdd({ email, password, name, phoneNumber, role: "Branch_Manager", branchId });
         } else {
-          alert("Bổ nhiệm quản lý thất bại!");
+          toast.error("Bổ nhiệm quản lý thất bại!");
           return;
         }
       }
@@ -54,7 +55,7 @@ const ModalAddEmployee: React.FC<ModalAddEmployeeProps> = ({ isOpen, onClose, on
       setSalary(0);
       onClose();
     } catch {
-      alert("Có lỗi xảy ra khi thêm nhân sự!");
+      toast.error("Có lỗi xảy ra khi thêm nhân sự!");
     }
   };
 

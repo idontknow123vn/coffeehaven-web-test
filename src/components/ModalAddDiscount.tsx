@@ -6,6 +6,7 @@ import {
   createDiscount,
 } from "../services/head-office";
 import type { MenuItem } from "../utils/MenuItem";
+import { toast } from '../toast';
 
 interface ModalAddDiscountProps {
   open: boolean;
@@ -87,11 +88,12 @@ const ModalAddDiscount: React.FC<ModalAddDiscountProps> = ({ open, onClose, onSu
       if (discountType === "CATEGORY" && selectedCategoryIds.length > 0) payload.categoryIds = selectedCategoryIds;
       if (discountType === "ORDER" && priceThreshold) payload.priceThreshold = priceThreshold;
       const res = await createDiscount(payload);
-      if (res.data?.message) alert(res.data.message);
+      if (res.data?.message) toast[res.data.message === "Tạo thành công." ? "success" : "error"](res.data.message);
       if (onSuccess) onSuccess();
       onClose();
     } catch {
       setError("Có lỗi xảy ra khi tạo mã giảm giá");
+      toast.error("Có lỗi xảy ra khi tạo mã giảm giá");
     } finally {
       setLoading(false);
     }

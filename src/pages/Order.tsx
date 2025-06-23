@@ -46,6 +46,8 @@ const OrdersPage: React.FC = () => {
     const [page, setPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
     const [totalPages, setTotalPages] = useState<number>(1);
+    const [customerPhone, setCustomerPhone] = useState<string>("");
+    const [searchTrigger, setSearchTrigger] = useState(0);
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -59,7 +61,7 @@ const OrdersPage: React.FC = () => {
                         statusFilter === "Đang giao" ? "Delivering" :
                         statusFilter === "Đã giao" ? "Delivered" :
                         statusFilter === "Đã hủy" ? "Cancelled" : statusFilter;
-                    const response = await getOrdersByIdBranchAndDate(branchId, dateStr, page, pageSize, statusParam);
+                    const response = await getOrdersByIdBranchAndDate(branchId, dateStr, customerPhone, page, pageSize, statusParam);
                     let apiOrders = response.data.data as ApiOrder[];
                     // Lọc theo location nếu cần
                     if (locationFilter === "Tại quầy") {
@@ -96,7 +98,7 @@ const OrdersPage: React.FC = () => {
             }
         };
         fetchOrders();
-    }, [branchId, date, statusFilter, locationFilter, searchTerm, page, pageSize]);
+    }, [branchId, date, statusFilter, locationFilter, searchTerm, page, pageSize, customerPhone, searchTrigger]);
 
     // Hàm lấy chi tiết đơn hàng (giả sử có API getOrderDetailByOrderId)
     const handleShowOrderDetail = async (order: Order) => {
@@ -150,15 +152,6 @@ const OrdersPage: React.FC = () => {
                     onChange={(e) => setDate(e.target.value)}
                     className="border rounded p-2"
                 />
-                {/* {date && (
-                    <button
-                        type="button"
-                        onClick={() => setDate("")}
-                        className="ml-2 px-2 py-1 bg-gray-200 rounded"
-                    >
-                        X
-                    </button>
-                )} */}
                 <input
                     type="text"
                     value={searchTerm}
@@ -166,6 +159,26 @@ const OrdersPage: React.FC = () => {
                     placeholder="Tìm đơn"
                     className="border rounded p-2"
                 />
+                {/* Thêm filter số điện thoại khách hàng */}
+                <input
+                    type="text"
+                    value={customerPhone}
+                    onChange={e => setCustomerPhone(e.target.value)}
+                    placeholder="SĐT khách hàng"
+                    className="border rounded p-2"
+                />
+                <button
+                    className="px-3 py-1 bg-orange-500 text-white rounded"
+                    onClick={() => setSearchTrigger(t => t + 1)}
+                >
+                    Tìm
+                </button>
+                <button
+                    className="px-3 py-1 bg-gray-300 text-black rounded"
+                    onClick={() => setCustomerPhone("")}
+                >
+                    Hủy
+                </button>
             </div>
 
             <table className="w-full border-collapse">
