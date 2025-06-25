@@ -7,7 +7,7 @@ const getOrderDetailsById = async (orderId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
