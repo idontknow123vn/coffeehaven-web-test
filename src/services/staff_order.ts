@@ -7,7 +7,7 @@ const createOrder = async (data: any) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify(data),
         });
@@ -25,7 +25,7 @@ const getOrderByIdBranch = async (branchId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -62,7 +62,7 @@ const getOrdersByIdBranchAndDate = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -79,7 +79,7 @@ const changeOrderStatus = async (orderId: number, status: string) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({ status }),
         });
@@ -99,7 +99,7 @@ const getInplaceOrdersByBranch = async (branchId: number, employeeId: number, da
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;

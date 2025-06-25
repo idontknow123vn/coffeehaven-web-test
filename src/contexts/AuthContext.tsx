@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { _login } from '../services/auth';
+import { _login, _resetToken } from '../services/auth';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -24,12 +24,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check if user is already logged in
-    const role = localStorage.getItem('role') as 'EMPLOYEE' | 'CUSTOMER' | null;
+    const role = sessionStorage.getItem('role') as 'EMPLOYEE' | 'CUSTOMER' | null;
     if (role) {
       setIsAuthenticated(true);
       setUserRole(role);
     }
   }, []);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    const interval = setInterval(() => {
+      const refresh = async () => {
+        try {
+          const res = await _resetToken(accessToken);
+          if (res.status === 200) {
+            sessionStorage.setItem('accessToken', res.data.data.accessToken);
+            setAccessToken(res.data.data.accessToken);
+          } else {
+            console.error("Failed to reset token:", res);
+          }
+        } catch (err) {
+          console.error("Error in _resetToken:", err);
+        }
+      };
+      refresh();
+    }, 2700000); // 45 phút
+    return () => clearInterval(interval);
+  }, [accessToken]);
 
   const login = async (username: string, password: string, role: 'EMPLOYEE' | 'CUSTOMER' | null) => {
     const result = await _login({
@@ -38,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       userType: role,
     });
     if (result.status === 200) {
-      localStorage.setItem('accessToken', result.data.data.accessToken);
+      sessionStorage.setItem('accessToken', result.data.data.accessToken);
       setAccessToken(result.data.data.accessToken);
       setIsAuthenticated(true);
       setUserRole(result.data.data.role);
@@ -51,9 +72,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    localStorage.removeItem('role');
+    sessionStorage.removeItem('role');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('branchId');
+    sessionStorage.removeItem('userId');
+    sessionStorage.removeItem('name');
     setIsAuthenticated(false);
     setUserRole(null);
+    setAccessToken(null);
+    setId(null);
+    setUserId(null);
+    setName(null);
   };
 
   return (
@@ -69,4 +98,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

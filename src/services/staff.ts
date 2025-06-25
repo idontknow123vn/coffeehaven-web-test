@@ -6,7 +6,7 @@ const getProfile = async () => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return response.data;
@@ -22,7 +22,7 @@ const getStaffShifts = async (employeeId: number, date: string) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`,
             }
         });
         return response.data;

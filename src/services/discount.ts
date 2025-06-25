@@ -6,7 +6,7 @@ const getDiscountToday = async (branchId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return response.data;
@@ -22,7 +22,7 @@ const getDiscountById = async (discountId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
+                "Authorization": `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return response.data;

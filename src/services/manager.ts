@@ -7,7 +7,7 @@ const getBranchDetails = async (branchId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -29,7 +29,7 @@ const getEmployeesByBranch = async (branchId: number, role: string | null, page:
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -47,7 +47,7 @@ const countEmployeesInBranch = async (branchId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -64,7 +64,7 @@ const changeEmployeeStatus = async (employeeId: number, status: boolean, inactiv
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 employeeId: employeeId,
@@ -98,7 +98,7 @@ const getMenuItemsNotInBranch = async (
                 headers: {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${localStorage.getItem(
+                    Authorization: `Bearer ${sessionStorage.getItem(
                         "accessToken"
                     )}`,
                 },
@@ -118,7 +118,7 @@ const addItemToBranch = async (branchId: number, itemId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 branchId: branchId,
@@ -143,7 +143,7 @@ const changeItemStatus = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 branchId: branchId,
@@ -167,7 +167,7 @@ const getShiftByBranchInWeek = async (branchId: number, date: string) => {
                 headers: {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${localStorage.getItem(
+                    Authorization: `Bearer ${sessionStorage.getItem(
                         "accessToken"
                     )}`,
                 },
@@ -191,7 +191,7 @@ const addEmployeeToShift = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 shiftId: shiftId,
@@ -215,7 +215,7 @@ const getEmployeesNotManager = async (branchId: number) => {
                 headers: {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${localStorage.getItem(
+                    Authorization: `Bearer ${sessionStorage.getItem(
                         "accessToken"
                     )}`,
                 },
@@ -241,7 +241,7 @@ const updateEmployeeShift = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 employeeId: employeeId,
@@ -269,7 +269,7 @@ const deleteEmployeeShift = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 employeeId: employeeId,
@@ -291,7 +291,7 @@ const getWeeklyRevenueByBranch = async (branchId: number, date: string) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -314,7 +314,7 @@ const getMonthlyRevenueByBranch = async (
                 headers: {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${localStorage.getItem(
+                    Authorization: `Bearer ${sessionStorage.getItem(
                         "accessToken"
                     )}`,
                 },
@@ -334,7 +334,7 @@ const addEmployee = async (employeeData: Record<string, unknown>) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify(employeeData),
         });
@@ -352,7 +352,7 @@ const getBranchDiscounts = async (branchId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
         });
         return result;
@@ -374,7 +374,7 @@ const reassignShift = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 fromEmployeeId: oldEmployeeId,
@@ -400,7 +400,7 @@ const updateEmployeeSalary = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify({
                 employeeId: employeeId,

@@ -27,7 +27,7 @@ const _logout = async () => {
                 "Access-Control-Allow-Origin": "*"
             },
             data: JSON.stringify({
-                token: localStorage.getItem("accessToken"),
+                token: sessionStorage.getItem("accessToken"),
             }),
         });
         return result;
@@ -44,7 +44,7 @@ const _updateProfile = async (data: any) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
             },
             data: JSON.stringify(data),
         });
@@ -54,6 +54,24 @@ const _updateProfile = async (data: any) => {
         throw error;
     }
 };
+
+const _resetToken = async (token: string) => {
+    try {
+        const result = await identity("/refresh-token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            data: JSON.stringify({ token }),
+        });
+        return result;
+    }
+    catch (error: any) {
+        console.error("Reset token error:", error);
+        throw error;
+    }
+}
 
 const _forgotPassword = async (email: string) => {
     try {
@@ -89,4 +107,4 @@ const _resetPassword = async (email: string, otp: string) => {
     }
 };
 
-export { _login, _logout, _updateProfile, _forgotPassword, _resetPassword };
+export { _login, _logout, _updateProfile, _forgotPassword, _resetPassword, _resetToken };
