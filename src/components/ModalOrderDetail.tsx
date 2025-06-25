@@ -18,6 +18,9 @@ const ModalOrderDetail: React.FC<{
         status: string;
         customer?: string;
         receiverInfo?: string;
+        employeeId?: number;
+        employeeName?: string;
+        employeePhone?: string;
     } | null>(null);
 
     useEffect(() => {
@@ -38,7 +41,9 @@ const ModalOrderDetail: React.FC<{
                 status: _order.status,
                 customer: _order.customerInfo || undefined,
                 receiverInfo: _order.receiverInfo || undefined,
-                
+                employeeId: _order.employeeId,
+                employeeName: _order.employeeName || undefined,
+                employeePhone: _order.employeePhone || undefined,
             });
         };
         fetchDetail();
@@ -52,7 +57,7 @@ const ModalOrderDetail: React.FC<{
                 <h2 className="text-xl font-semibold mb-4 text-orange-600">
                     Chi tiết đơn
                 </h2>
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
                     <div>
                         <label className="block text-sm font-medium">
                             Mã đơn
@@ -120,6 +125,27 @@ const ModalOrderDetail: React.FC<{
                         <label className="block text-sm font-medium">Người nhận</label>
                         <p className="text-gray-700" style={{ whiteSpace: 'pre-line' }}>
                           {order.receiverInfo}
+                        </p>
+                      </div>
+                    )}
+                    {/* Thêm xác nhận khách hàng và giao hàng */}
+                    {typeof _order?.customerConfirm === 'boolean' && (
+                      <div>
+                        <label className="block text-sm font-medium">Xác nhận khách hàng</label>
+                        <p className="text-gray-700">
+                          {_order.customerConfirm
+                            ? "Đã có xác nhận của khách hàng"
+                            : "Chưa có xác nhận của khách hàng"}
+                        </p>
+                      </div>
+                    )}
+                    {typeof _order?.deliveryConfirm === 'boolean' && (
+                      <div>
+                        <label className="block text-sm font-medium">Xác nhận nhân viên giao hàng</label>
+                        <p className="text-gray-700">
+                          {_order.deliveryConfirm
+                            ? "Đã có xác nhận của nhân viên giao hàng"
+                            : "Chưa có xác nhận của nhân viên giao hàng"}
                         </p>
                       </div>
                     )}

@@ -28,6 +28,8 @@ interface ApiOrder {
     employeeName?: string;
     employeePhone?: string;
     receiverInfo?: string;
+    customerConfirm?: boolean;
+    deliveryConfirm?: boolean;
 }
 
 const OrdersPage: React.FC = () => {
@@ -78,6 +80,8 @@ const OrdersPage: React.FC = () => {
                         employeeName: order.employeeName,
                         employeePhone: order.employeePhone,
                         receiverInfo: order.receiverInfo,
+                        customerConfirm: order.customerConfirm,
+                        deliveryConfirm: order.deliveryConfirm,
                     })));
                     // Lấy tổng số trang từ response nếu có
                     if (response.data.totalPages !== undefined) {

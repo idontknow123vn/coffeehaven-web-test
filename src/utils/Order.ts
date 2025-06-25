@@ -10,4 +10,6 @@ export interface Order {
     employeePhone?: string;
     customerInfo?: string;
     receiverInfo?: string;
+    customerConfirm?: boolean;
+    deliveryConfirm?: boolean;
 }

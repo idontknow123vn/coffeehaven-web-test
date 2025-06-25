@@ -86,16 +86,25 @@ const EmployeesPage: React.FC = () => {
               {/* <td className="p-2">{employee.orders}</td> */}
               <td className="p-2">
                 <span
-                  className={employee.status === 'Active' ? 'text-green-500 cursor-pointer underline' : 'text-red-500 cursor-pointer underline'}
-                  onClick={() => {
-                    if (employee.status === 'Active') {
-                      setShowReasonModal({ open: true, employee });
-                      setReason("");
-                    } else {
-                      // Chuyển sang Active không cần lý do
-                      changeEmployeeStatus(Number(employee.id), true, '').then(() => fetchEmployees());
-                    }
-                  }}
+                  className={
+                    employee.status === 'Active'
+                      ? `text-green-500 underline ${employee.role === 'Head_Office' || employee.role === 'Branch_Manager' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`
+                      : `text-red-500 underline ${employee.role === 'Head_Office' || employee.role === 'Branch_Manager' ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`
+                  }
+                  title={employee.role === 'Head_Office' || employee.role === 'Branch_Manager' ? 'Không thể thay đổi trạng thái nhân viên này' : ''}
+                  onClick={
+                    employee.role === 'Head_Office' || employee.role === 'Branch_Manager'
+                      ? undefined
+                      : () => {
+                          if (employee.status === 'Active') {
+                            setShowReasonModal({ open: true, employee });
+                            setReason("");
+                          } else {
+                            // Chuyển sang Active không cần lý do
+                            changeEmployeeStatus(Number(employee.id), true, '').then(() => fetchEmployees());
+                          }
+                        }
+                  }
                 >
                   {String(employee.status ?? '')}
                 </span>

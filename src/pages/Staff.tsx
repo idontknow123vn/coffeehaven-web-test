@@ -29,6 +29,9 @@ interface Invoice {
   status: string;
   branchId: number;
   branchName: string;
+  employeeId?: number;
+  employeeName?: string;
+  employeePhone?: string;
 }
 
 interface MenuItem {
@@ -45,7 +48,7 @@ const Staff: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<0 | 1 | 2 | 3 | 4>(0);
   const { id: branchId, userRole, } = useAuth();
   const { userId: userId } = useAuth();
-  const defaultScreen = (userRole === 'Barista' || userRole === 'Server') ? 'myshift' : 'order';
+  const defaultScreen = (userRole === 'Barista' || userRole === 'Server' || userRole ==='Delivery_Staff') ? 'myshift' : 'order';
   const [activeScreen, setActiveScreen] = useState<'order' | 'invoice' | 'schedule' | 'account' | 'preparing' | 'myshift'>(defaultScreen);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedDate, setSelectedDate] = useState<string>('');
@@ -59,6 +62,7 @@ const Staff: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [discountToday, setDiscountToday] = useState<Discount | null>(null);
+  const [loadingInvoice, setLoadingInvoice] = useState(false);
 
   // State cho filter ngày hóa đơn tại quầy
   const [invoiceDate, setInvoiceDate] = useState<string>(() => {
@@ -133,6 +137,7 @@ const Staff: React.FC = () => {
       employeeId: userId,
       status: 'Delivered',
       totalPrice: getOrderDiscountedTotal(),
+      discountInfo: discountToday ? discountToday.name : null,
       orderItems: order.map(item => ({
         menuItemId: item.id,
         quantity: item.qty,
@@ -191,6 +196,7 @@ const Staff: React.FC = () => {
   useEffect(() => {
     if (activeScreen === 'invoice' && branchId && userId) {
       // Gọi API lấy danh sách hóa đơn tại quầy theo chi nhánh, ngày, phân trang
+      setLoadingInvoice(true);
       getInplaceOrdersByBranch(branchId, userId, invoiceDate, invoicePage, invoicePageSize)
         .then(res => {
           setInvoices(res.data.data || []);
@@ -200,7 +206,8 @@ const Staff: React.FC = () => {
           setInvoices([]);
           setInvoiceTotalPages(1);
           console.error('Lỗi lấy danh sách hóa đơn tại quầy:', err);
-        });
+        })
+        .finally(() => setLoadingInvoice(false));
     }
   }, [activeScreen, branchId, invoiceDate, invoicePage, invoicePageSize]);
 
@@ -299,7 +306,7 @@ const Staff: React.FC = () => {
           gap: '20px',
           marginTop: '20px'
         }}>
-          {!(userRole === 'Barista' || userRole === 'Server') && (
+          {!(userRole === 'Barista' || userRole === 'Server' || userRole === 'Delivery_Staff') && (
             <>
               <button
                 onClick={() => setActiveScreen('order')}
@@ -451,7 +458,7 @@ const Staff: React.FC = () => {
         flexDirection: 'column' // Thêm dòng này để có thể đặt thông báo khuyến mãi ở đầu
       }}>
         {/* Hiển thị tên khuyến mãi hôm nay nếu có - Đặt ở đầu trang */}
-        {discountToday?.name && (
+        {!(userRole === 'Barista' || userRole === 'Server' || userRole === 'Delivery_Staff') && discountToday?.name && (
           <div style={{
             background: '#ffe5b4',
             color: '#8B4513',
@@ -469,7 +476,7 @@ const Staff: React.FC = () => {
             🎉 Khuyến mãi hôm nay: {discountToday.name}
           </div>
         )}
-        {!(userRole === 'Barista' || userRole === 'Server') && activeScreen === 'order' ? (
+        {!(userRole === 'Barista' || userRole === 'Server' || userRole === 'Delivery_Staff') && activeScreen === 'order' ? (
           <>
             {/* Order Content */}
             <div style={{ 
@@ -548,6 +555,7 @@ const Staff: React.FC = () => {
                       name={product.name}
                       price={discountedPrice}
                       img={product.img}
+                      available={product.available}
                       category={product.category}
                       onAddToOrder={addToOrder}
                       // Nếu có giảm giá, truyền thêm originalPrice để hiển thị giá gạch ngang (nếu Product hỗ trợ)
@@ -757,6 +765,37 @@ const Staff: React.FC = () => {
                   outline: 'none'
                 }}
               />
+              <button
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '4px',
+                  border: '1px solid #8B4513',
+                  background: '#fff',
+                  color: '#8B4513',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  marginLeft: 8
+                }}
+                onClick={() => {
+                  if (branchId && userId) {
+                    setLoadingInvoice(true);
+                    getInplaceOrdersByBranch(branchId, userId, invoiceDate, invoicePage, invoicePageSize)
+                      .then(res => {
+                        setInvoices(res.data.data || []);
+                        setInvoiceTotalPages(res.data.totalPages || 1);
+                      })
+                      .catch(err => {
+                        setInvoices([]);
+                        setInvoiceTotalPages(1);
+                        console.error('Lỗi lấy danh sách hóa đơn tại quầy:', err);
+                      })
+                      .finally(() => setLoadingInvoice(false));
+                  }
+                }}
+                disabled={loadingInvoice}
+              >
+                {loadingInvoice ? 'Đang làm mới...' : 'Làm mới'}
+              </button>
             </div>
 
             {/* Invoice Table */}
@@ -862,9 +901,15 @@ const Staff: React.FC = () => {
               <ModalOrderDetail
                 isOpen={showDetailModal}
                 onClose={() => setShowDetailModal(false)}
-                _order={{id: Number(selectedInvoice.orderId), 
+                _order={{id: Number(selectedInvoice.orderId),
+                  branchId: selectedInvoice.branchId,
+                  branchName: selectedInvoice.branchName,
                   createdAt: selectedInvoice.orderDate, 
-                  totalPrice: selectedInvoice.totalPrice, status: selectedInvoice.status}}
+                  totalPrice: selectedInvoice.totalPrice, 
+                  status: selectedInvoice.status,
+                  employeeId: selectedInvoice.employeeId,
+                  employeeName: selectedInvoice.employeeName,
+                  employeePhone: selectedInvoice.employeePhone,}}
               />
             )}
 

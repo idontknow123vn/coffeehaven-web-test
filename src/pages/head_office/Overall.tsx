@@ -78,11 +78,14 @@ const RevenueSum: React.FC = () => {
         []
     );
     const [overallMonthLabels, setOverallMonthLabels] = useState<string[]>([]);
+    const [overallMonthOrderCounts, setOverallMonthOrderCounts] = useState<number[]>([]);
 
     // State cho tổng số nhân viên đang hoạt động
     const [totalActiveEmployees, setTotalActiveEmployees] = useState<number>(0);
     const [overallMonthOrderCount, setOverallMonthOrderCount] =
         useState<number>(0);
+    // Thêm state monthOrderCounts để lưu số đơn hàng mỗi ngày trong tháng
+    const [monthOrderCounts, setMonthOrderCounts] = useState<number[]>([]);
     // Lấy danh sách chi nhánh khi mount
     useEffect(() => {
         getBranches()
@@ -123,14 +126,30 @@ const RevenueSum: React.FC = () => {
                         res.data.data as Array<{
                             date: string;
                             totalRevenue: number;
+                            totalOrder?: number;
                         }>
                     ).find((d) => d.date === dateStr);
                     return found ? found.totalRevenue : 0;
                 });
                 setMonthRevenue(revenueArr);
+                // Lấy số đơn hàng mỗi ngày
+                const orderArr = labelArr.map((day) => {
+                    const dateStr = `${selectedYear}-${String(
+                        selectedMonth
+                    ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                    const found = (
+                        res.data.data as Array<{
+                            date: string;
+                            totalOrder?: number;
+                        }>
+                    ).find((d) => d.date === dateStr);
+                    return found && found.totalOrder ? found.totalOrder : 0;
+                });
+                setMonthOrderCounts(orderArr);
             } catch {
                 setMonthLabels([]);
                 setMonthRevenue([]);
+                setMonthOrderCounts([]);
             }
         };
         fetchMonthRevenue();
@@ -162,11 +181,26 @@ const RevenueSum: React.FC = () => {
                         res.data.data as Array<{
                             date: string;
                             totalRevenue: number;
+                            totalOrder?: number;
                         }>
                     ).find((d) => d.date === dateStr);
                     return found ? found.totalRevenue : 0;
                 });
                 setOverallMonthRevenue(revenueArr);
+                // Lấy số đơn hàng mỗi ngày toàn hệ thống
+                const orderArr = labelArr.map((day) => {
+                    const dateStr = `${selectedYear}-${String(
+                        selectedMonth
+                    ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                    const found = (
+                        res.data.data as Array<{
+                            date: string;
+                            totalOrder?: number;
+                        }>
+                    ).find((d) => d.date === dateStr);
+                    return found && found.totalOrder ? found.totalOrder : 0;
+                });
+                setOverallMonthOrderCounts(orderArr);
                 const totalOrder = (
                     res.data.data as Array<{ totalOrder: number }>
                 ).reduce((sum, d) => sum + (d.totalOrder ?? 0), 0);
@@ -175,6 +209,7 @@ const RevenueSum: React.FC = () => {
                 setOverallMonthLabels([]);
                 setOverallMonthRevenue([]);
                 setOverallMonthOrderCount(0);
+                setOverallMonthOrderCounts([]);
             }
         };
         fetchOverallMonthRevenue();
@@ -291,6 +326,22 @@ const RevenueSum: React.FC = () => {
                     options={{
                         ...chartOptions,
                         maintainAspectRatio: false,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        const doanhThu = ctx.parsed.y;
+                                        const idx = ctx.dataIndex;
+                                        const soDon = overallMonthOrderCounts[idx] || 0;
+                                        return [
+                                            `Doanh thu: ${doanhThu.toLocaleString('vi-VN')} VNĐ`,
+                                            `Số đơn hàng: ${soDon}`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
                     }}
                     className="w-full h-full"
                 />
@@ -357,12 +408,39 @@ const RevenueSum: React.FC = () => {
                                 data: monthRevenue,
                                 backgroundColor: "#60a5fa",
                                 borderRadius: 6,
+                                yAxisID: 'y',
                             },
                         ],
                     }}
                     options={{
                         ...chartOptions,
                         maintainAspectRatio: false,
+                        plugins: {
+                            ...chartOptions.plugins,
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        const doanhThu = ctx.parsed.y;
+                                        const idx = ctx.dataIndex;
+                                        const soDon = monthOrderCounts[idx] || 0;
+                                        return [
+                                            `Doanh thu: ${doanhThu.toLocaleString('vi-VN')} VNĐ`,
+                                            `Số đơn hàng: ${soDon}`
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                position: 'left',
+                                title: { display: true, text: 'Doanh thu (VNĐ)' },
+                                ticks: {
+                                    callback: (value) => Number(value).toLocaleString('vi-VN'),
+                                },
+                            },
+                        },
                     }}
                     className="w-full h-full"
                 />
