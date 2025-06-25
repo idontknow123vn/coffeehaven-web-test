@@ -37,7 +37,7 @@ const OrdersPage: React.FC = () => {
         const today = new Date();
         return today.toISOString().slice(0, 10);
     });
-    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [customerPhone, setCustomerPhone] = useState<string>("");
     const { id: branchId } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [orderDetail, setOrderDetail] = useState<OrderDetail[]>([]);
@@ -46,7 +46,6 @@ const OrdersPage: React.FC = () => {
     const [page, setPage] = useState<number>(0);
     const [pageSize, setPageSize] = useState<number>(10);
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [customerPhone, setCustomerPhone] = useState<string>("");
     const [searchTrigger, setSearchTrigger] = useState(0);
 
     useEffect(() => {
@@ -66,12 +65,6 @@ const OrdersPage: React.FC = () => {
                     // Lọc theo location nếu cần
                     if (locationFilter === "Tại quầy") {
                         apiOrders = apiOrders.filter(order => !order.customerInfo);
-                    }
-                    // Lọc theo searchTerm nếu có
-                    if (searchTerm.trim()) {
-                        apiOrders = apiOrders.filter(order =>
-                            order.orderId.toString().includes(searchTerm.trim())
-                        );
                     }
                     setOrders(apiOrders.map((order) => ({
                         id: order.orderId,
@@ -98,7 +91,7 @@ const OrdersPage: React.FC = () => {
             }
         };
         fetchOrders();
-    }, [branchId, date, statusFilter, locationFilter, searchTerm, page, pageSize, customerPhone, searchTrigger]);
+    }, [branchId, date, statusFilter, locationFilter, page, pageSize, customerPhone, searchTrigger]);
 
     // Hàm lấy chi tiết đơn hàng (giả sử có API getOrderDetailByOrderId)
     const handleShowOrderDetail = async (order: Order) => {
@@ -114,6 +107,11 @@ const OrdersPage: React.FC = () => {
         // ]);
         setSelectedOrder(order);
         setShowOrderModal(true);
+    };
+
+    // Nút làm mới
+    const handleRefresh = () => {
+        setSearchTrigger(t => t + 1);
     };
 
     return (
@@ -154,17 +152,9 @@ const OrdersPage: React.FC = () => {
                 />
                 <input
                     type="text"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Tìm đơn"
-                    className="border rounded p-2"
-                />
-                {/* Thêm filter số điện thoại khách hàng */}
-                <input
-                    type="text"
                     value={customerPhone}
                     onChange={e => setCustomerPhone(e.target.value)}
-                    placeholder="SĐT khách hàng"
+                    placeholder="Tìm SĐT khách hàng"
                     className="border rounded p-2"
                 />
                 <button
@@ -178,6 +168,13 @@ const OrdersPage: React.FC = () => {
                     onClick={() => setCustomerPhone("")}
                 >
                     Hủy
+                </button>
+                <button
+                    className="px-3 py-1 bg-blue-500 text-white rounded"
+                    onClick={handleRefresh}
+                    title="Làm mới danh sách"
+                >
+                    Làm mới
                 </button>
             </div>
 

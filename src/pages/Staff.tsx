@@ -447,8 +447,28 @@ const Staff: React.FC = () => {
         display: 'flex',
         background: '#f8f9fa',
         marginLeft: '250px',
-        minHeight: '100vh'
+        minHeight: '100vh',
+        flexDirection: 'column' // Thêm dòng này để có thể đặt thông báo khuyến mãi ở đầu
       }}>
+        {/* Hiển thị tên khuyến mãi hôm nay nếu có - Đặt ở đầu trang */}
+        {discountToday?.name && (
+          <div style={{
+            background: '#ffe5b4',
+            color: '#8B4513',
+            padding: '10px 16px',
+            borderRadius: '8px',
+            fontWeight: 600,
+            margin: '24px 0 8px 40px', // Căn lề trái 40px cho thẳng hàng với filter
+            fontSize: 18,
+            display: 'block',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+            maxWidth: 600,
+            textAlign: 'left',
+            zIndex: 10
+          }}>
+            🎉 Khuyến mãi hôm nay: {discountToday.name}
+          </div>
+        )}
         {!(userRole === 'Barista' || userRole === 'Server') && activeScreen === 'order' ? (
           <>
             {/* Order Content */}
@@ -536,22 +556,6 @@ const Staff: React.FC = () => {
                   );
                 })}
               </div>
-              {/* Hiển thị tên khuyến mãi hôm nay nếu có */}
-              {discountToday?.name && (
-                <div style={{
-                  background: '#ffe5b4',
-                  color: '#8B4513',
-                  padding: '10px 16px',
-                  borderRadius: '8px',
-                  fontWeight: 600,
-                  marginBottom: 16,
-                  fontSize: 16,
-                  display: 'inline-block',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-                }}>
-                  🎉 Khuyến mãi hôm nay: {discountToday.name}
-                </div>
-              )}
               {/* Pagination */}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px', gap: '10px' }}>
                 <button

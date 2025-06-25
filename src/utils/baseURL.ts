@@ -1,1 +1,1 @@
-export const baseURL = 'http://localhost:8080'; // Replace with your actual base URL
+export const baseURL = 'https://trusty-heartily-cow.ngrok-free.app'; // Replace with your actual base URL

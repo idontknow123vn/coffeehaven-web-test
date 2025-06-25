@@ -53,6 +53,7 @@ const RevenueSum: React.FC = () => {
             day: string;
             value: number;
             date: string;
+            orderCount: number;
         }[]
     >([]);
     // State cho doanh thu tháng
@@ -66,6 +67,7 @@ const RevenueSum: React.FC = () => {
     const [monthLabels, setMonthLabels] = useState<string[]>([]); // nhãn ngày
     const [activeEmployeeCount, setActiveEmployeeCount] = useState<number>(0);
     const [weekOrderCount, setWeekOrderCount] = useState(0);
+    const [monthOrder, setMonthOrder] = useState<number[]>([]); // số đơn hàng từng ngày trong tháng
 
     useEffect(() => {
         const fetchRevenue = async () => {
@@ -92,7 +94,7 @@ const RevenueSum: React.FC = () => {
                             day: dayOfWeekMap[dow],
                             value: found ? found.totalRevenue : 0,
                             date: found ? found.date : "",
-                            // orderCount: found ? found.totalOrder : 0,
+                            orderCount: found ? found.totalOrder : 0,
                         };
                     })
                 );
@@ -146,14 +148,31 @@ const RevenueSum: React.FC = () => {
                         res.data.data as Array<{
                             date: string;
                             totalRevenue: number;
+                            totalOrder: number;
                         }>
                     ).find((d) => d.date === dateStr);
                     return found ? found.totalRevenue : 0;
                 });
                 setMonthRevenue(revenueArr);
+                // Thêm mảng số đơn hàng
+                const orderArr = labelArr.map((day) => {
+                    const dateStr = `${selectedYear}-${String(
+                        selectedMonth
+                    ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                    const found = (
+                        res.data.data as Array<{
+                            date: string;
+                            totalRevenue: number;
+                            totalOrder: number;
+                        }>
+                    ).find((d) => d.date === dateStr);
+                    return found ? found.totalOrder : 0;
+                });
+                setMonthOrder(orderArr);
             } catch {
                 setMonthLabels([]);
                 setMonthRevenue([]);
+                setMonthOrder([]);
             }
         };
         fetchMonthRevenue();
@@ -181,6 +200,7 @@ const RevenueSum: React.FC = () => {
                 data: dailyRevenue.map((d) => d.value),
                 backgroundColor: "#fb923c",
                 borderRadius: 6,
+                // yAxisID: 'y', // No need for multiple axes now
             },
         ],
     };
@@ -192,13 +212,57 @@ const RevenueSum: React.FC = () => {
             title: { display: false },
             tooltip: {
                 callbacks: {
-                    label: (ctx: { parsed: { y: number } }) =>
-                        ctx.parsed.y.toLocaleString("vi-VN") + " VNĐ",
+                    label: function(ctx: { parsed: { y: number }, dataIndex: number }) {
+                        const revenue = ctx.parsed.y.toLocaleString("vi-VN") + " VNĐ";
+                        // Lấy số đơn hàng từ dailyRevenue
+                        const orderCount = dailyRevenue[ctx.dataIndex]?.orderCount ?? 0;
+                        return [
+                            `Doanh thu: ${revenue}`,
+                            `Số đơn hàng: ${orderCount.toLocaleString("vi-VN")}`
+                        ];
+                    },
                 },
             },
         },
         scales: {
             y: {
+                type: 'linear' as const,
+                position: 'left' as const,
+                title: { display: true, text: 'Doanh thu (VNĐ)' },
+                ticks: {
+                    callback: (value: number | string) =>
+                        Number(value).toLocaleString("vi-VN"),
+                },
+            },
+        },
+    };
+
+    // Chart options for month chart: show both doanh thu and số đơn hàng khi hover
+    const monthChartOptions = {
+        ...chartOptions,
+        maintainAspectRatio: false,
+        plugins: {
+            ...chartOptions.plugins,
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(ctx: any) {
+                        // ctx.dataIndex là index của ngày trong tháng
+                        const revenue = monthRevenue[ctx.dataIndex]?.toLocaleString("vi-VN") + " VNĐ";
+                        const order = monthOrder[ctx.dataIndex]?.toLocaleString("vi-VN") + " đơn";
+                        return [
+                            `Doanh thu: ${revenue}`,
+                            `Số đơn hàng: ${order}`
+                        ];
+                    },
+                },
+            },
+        },
+        scales: {
+            y: {
+                type: 'linear' as const,
+                position: 'left' as const,
+                title: { display: true, text: 'Doanh thu (VNĐ)' },
                 ticks: {
                     callback: (value: number | string) =>
                         Number(value).toLocaleString("vi-VN"),
@@ -309,12 +373,40 @@ const RevenueSum: React.FC = () => {
                                 data: monthRevenue,
                                 backgroundColor: "#60a5fa",
                                 borderRadius: 6,
+                                // yAxisID: 'y',
                             },
                         ],
                     }}
                     options={{
-                        ...chartOptions,
-                        maintainAspectRatio: false,
+                        ...monthChartOptions,
+                        plugins: {
+                            ...monthChartOptions.plugins,
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx: any) {
+                                        // ctx.dataIndex là index của ngày trong tháng
+                                        const revenue = monthRevenue[ctx.dataIndex]?.toLocaleString("vi-VN") + " VNĐ";
+                                        const order = monthOrder[ctx.dataIndex]?.toLocaleString("vi-VN") + " đơn";
+                                        return [
+                                            `Doanh thu: ${revenue}`,
+                                            `Số đơn hàng: ${order}`
+                                        ];
+                                    },
+                                },
+                            },
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear' as const,
+                                position: 'left' as const,
+                                title: { display: true, text: 'Doanh thu (VNĐ)' },
+                                ticks: {
+                                    callback: (value: number | string) =>
+                                        Number(value).toLocaleString("vi-VN"),
+                                },
+                            },
+                        },
                     }}
                     className="w-full h-full"
                 />
