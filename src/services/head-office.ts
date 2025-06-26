@@ -1,13 +1,40 @@
 import { headOffice } from "../utils/request";
 
-const getBranches = async () => {
+const getBranches = async (status: string, page: number, size: number) => {
+    try {
+        const params: Record<string, string> = {
+            page: page.toString(),
+            size: size.toString(),
+        };
+        if (status && status != '') params.status = status;
+        const queryParams = new URLSearchParams(params).toString();
+        const result = await headOffice(`/get-branches-paged?${queryParams}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error fetching branches:", error);
+        throw error;
+    }
+};
+
+const _getBranches = async () => {
     try {
         const result = await headOffice(`/get-branches`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
         });
         return result;
@@ -24,7 +51,9 @@ const createBranch = async (branchData: any) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
             data: JSON.stringify(branchData),
         });
@@ -42,7 +71,9 @@ const addBranchManager = async (managerData: any) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
             data: JSON.stringify(managerData),
         });
@@ -55,23 +86,42 @@ const addBranchManager = async (managerData: any) => {
 
 const changeBranchStatus = async (branchId: number) => {
     try {
-        const result = await headOffice(
-            `/change-branch-status/${branchId}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-                },
-            }
-        );
+        const result = await headOffice(`/change-branch-status/${branchId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+        });
         return result;
     } catch (error: any) {
         console.error("Error changing branch status:", error);
         throw error;
     }
-}
+};
+
+const updateBranch = async (branchId: number, branchData: any) => {
+    try {
+        const result = await headOffice(`/update-branch/${branchId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+            data: JSON.stringify(branchData),
+        });
+        return result;
+    } catch (error: any) {
+        console.error("Error updating branch:", error);
+        throw error;
+    }
+};
 
 // Tạo mới menu item (dùng cho ModalAddMenuItem)
 const createMenuItem = async (formData: FormData) => {
@@ -81,7 +131,9 @@ const createMenuItem = async (formData: FormData) => {
             headers: {
                 // KHÔNG set Content-Type, axios sẽ tự động set boundary cho multipart/form-data
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
             data: formData,
         });
@@ -94,23 +146,22 @@ const createMenuItem = async (formData: FormData) => {
 
 const getTotalActiveEmployees = async () => {
     try {
-        const result = await headOffice(
-            `/count-employees`,
-            {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-                },
-            }
-        );
+        const result = await headOffice(`/count-employees`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
+            },
+        });
         return result;
     } catch (error: any) {
         console.error("Error fetching total active employees:", error);
         throw error;
     }
-}
+};
 
 const getMonthlyRevenueByBranch = async (
     branchId: number | null,
@@ -118,11 +169,16 @@ const getMonthlyRevenueByBranch = async (
     year: number
 ) => {
     try {
-        const queryParams = branchId != null? new URLSearchParams({
-            branchId: branchId.toString(),
-        }).toString() : null;
+        const queryParams =
+            branchId != null
+                ? new URLSearchParams({
+                      branchId: branchId.toString(),
+                  }).toString()
+                : null;
         const result = await headOffice(
-            `/overall/statistics/${year}/${month}${queryParams ? '?' + queryParams : ''}`,
+            `/overall/statistics/${year}/${month}${
+                queryParams ? "?" + queryParams : ""
+            }`,
             {
                 method: "GET",
                 headers: {
@@ -150,7 +206,9 @@ const getOverallMonthlyRevenue = async (month: number, year: number) => {
                 headers: {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                    Authorization: `Bearer ${sessionStorage.getItem(
+                        "accessToken"
+                    )}`,
                 },
             }
         );
@@ -168,7 +226,9 @@ const updateItem = async (itemId: number, itemData: any) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
             data: JSON.stringify(itemData),
         });
@@ -186,7 +246,9 @@ const createDiscount = async (discountData: any) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
             data: JSON.stringify(discountData),
         });
@@ -292,7 +354,9 @@ const getDiscounts = async (
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
         });
         return result;
@@ -309,7 +373,9 @@ const deleteDiscount = async (discountId: number) => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
         });
         return result;
@@ -326,7 +392,9 @@ const getItemsCurrentlyBeingSold = async () => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
         });
         return result;
@@ -343,7 +411,9 @@ const getCategoriesCurrentlyBeingSold = async () => {
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
         });
         return result;
@@ -353,7 +423,12 @@ const getCategoriesCurrentlyBeingSold = async () => {
     }
 };
 
-const getEmployeesByBranch = async (branchId: number | null, role: string | null, page: number, size: number) => {
+const getEmployeesByBranch = async (
+    branchId: number | null,
+    role: string | null,
+    page: number,
+    size: number
+) => {
     try {
         const queryParams = new URLSearchParams({
             ...(branchId !== null ? { branchId: branchId.toString() } : {}),
@@ -366,7 +441,9 @@ const getEmployeesByBranch = async (branchId: number | null, role: string | null
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
         });
         return result;
@@ -386,7 +463,9 @@ const getEmployeesNotManagers = async (branchId: number) => {
                 headers: {
                     "Content-Type": "application/json",
                     "Access-Control-Allow-Origin": "*",
-                    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                    Authorization: `Bearer ${sessionStorage.getItem(
+                        "accessToken"
+                    )}`,
                 },
             }
         );
@@ -395,57 +474,71 @@ const getEmployeesNotManagers = async (branchId: number) => {
         console.error("Error fetching employees not managers:", error);
         throw error;
     }
-}
+};
 
-const changeBranchManager = async (branchId: number, newManagerId: number, oldManagerNewRole: string) => {
+const changeBranchManager = async (
+    branchId: number,
+    newManagerId: number,
+    oldManagerNewRole: string
+) => {
     try {
         const result = await headOffice(`/change-branch-manager`, {
-            method: "PUT",
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
             data: JSON.stringify({
                 branchId,
-                newManagerId, 
-                oldManagerNewRole }),
+                newManagerId,
+                oldManagerNewRole,
+            }),
         });
         return result;
     } catch (error: any) {
         console.error("Error changing branch manager:", error);
         throw error;
     }
-}
+};
 
-const transferEmployeeToBranch = async (employeeId: number, newBranchId: number) => {
+const transferEmployeeToBranch = async (
+    employeeId: number,
+    newBranchId: number
+) => {
     try {
-        const result = await headOffice(`/transfer-employee?employeeId=${employeeId}&newBranchId=${newBranchId}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-            },
-        });
+        const result = await headOffice(
+            `/transfer-employee?employeeId=${employeeId}&newBranchId=${newBranchId}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: `Bearer ${sessionStorage.getItem(
+                        "accessToken"
+                    )}`,
+                },
+            }
+        );
         return result;
     } catch (error: any) {
         console.error("Error transferring employee to branch:", error);
         throw error;
     }
-}
+};
 
-const updateManagerSalary = async (
-    managerId: number,
-    newSalary: number
-) => {
+const updateManagerSalary = async (managerId: number, newSalary: number) => {
     try {
         const result = await headOffice(`/manager/${managerId}/salary`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
-                Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+                Authorization: `Bearer ${sessionStorage.getItem(
+                    "accessToken"
+                )}`,
             },
             data: JSON.stringify({
                 newSalary: newSalary,
@@ -456,11 +549,13 @@ const updateManagerSalary = async (
         console.error("Error updating employee salary:", error);
         throw error;
     }
-}
+};
 
 export {
     getBranches,
+    _getBranches,
     createBranch,
+    updateBranch,
     addBranchManager,
     changeBranchStatus,
     createMenuItem,
@@ -480,5 +575,5 @@ export {
     getEmployeesNotManagers,
     changeBranchManager,
     transferEmployeeToBranch,
-    updateManagerSalary
+    updateManagerSalary,
 };

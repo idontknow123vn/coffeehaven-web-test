@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-    getBranches,
+    _getBranches,
     getEmployeesByBranch,
     transferEmployeeToBranch,
     updateManagerSalary,
@@ -41,7 +41,7 @@ const HeadOfficeEmployeePage: React.FC = () => {
     const [reason, setReason] = useState("");
 
     useEffect(() => {
-        getBranches().then((res) => setBranches(res.data.data || []));
+        _getBranches().then((res) => setBranches(res.data.data || []));
     }, []);
 
     useEffect(() => {

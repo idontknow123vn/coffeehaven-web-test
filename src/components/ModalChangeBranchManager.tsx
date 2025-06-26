@@ -12,6 +12,7 @@ interface ModalChangeBranchManagerProps {
     branchId: number;
     onClose: () => void;
     onSuccess?: () => void;
+    changeType?: "create" | "update";
 }
 
 interface Employee {
@@ -27,6 +28,7 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
     branchId,
     onClose,
     onSuccess,
+    changeType,
 }) => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [selectedManagerId, setSelectedManagerId] = useState<number | null>(
@@ -58,7 +60,7 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
     }, [isOpen, branchId]);
     const handleChangeManager = async () => {
         if (selectionType === "internal") {
-            if (!selectedManagerId || !oldManagerNewRole) return;
+            if (!selectedManagerId || (changeType !== "create" && !oldManagerNewRole)) return;
         } else {
             if (
                 !newEmployeeName ||
@@ -66,7 +68,7 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
                 !newEmployeePhone ||
                 !newEmployeePassword ||
                 !newEmployeeSalary ||
-                !oldManagerNewRole
+                (changeType !== "create" && !oldManagerNewRole)
             )
                 return;
         }
@@ -75,12 +77,22 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
         setError("");
         try {
             if (selectionType === "internal") {
-                await changeBranchManager(
-                    branchId,
-                    selectedManagerId!,
-                    oldManagerNewRole
-                );
-                toast.success("Thay đổi quản lý chi nhánh thành công!");
+                // Nếu là create thì chỉ bổ nhiệm, không chuyển vai trò quản lý cũ
+                if (changeType === "create") {
+                    const res = await changeBranchManager(
+                        branchId,
+                        selectedManagerId!,
+                        "" // Không truyền oldManagerNewRole
+                    );
+                    toast.info(res.data.message || "Bổ nhiệm quản lý thành công!");
+                } else {
+                    const res = await changeBranchManager(
+                        branchId,
+                        selectedManagerId!,
+                        oldManagerNewRole
+                    );
+                    toast.info(res.data.message || "Thay đổi quản lý thành công!");
+                }
             } else {
                 const newEmployeeData = {
                     name: newEmployeeName,
@@ -92,9 +104,9 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
                     branchId: branchId,
                     oldManagerNewRole: oldManagerNewRole,
                 };
-                await addEmployee(newEmployeeData);
-                toast.success(
-                    "Tạo quản lý mới và thay đổi chi nhánh thành công!"
+                const res = await addEmployee(newEmployeeData);
+                toast.info(
+                    res.data.message || "Tạo quản lý mới và thay đổi chi nhánh thành công!"
                 );
             }
 
@@ -263,6 +275,7 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
                 )}
 
                 {/* Vai trò mới cho quản lý cũ */}
+                {changeType !== "create" && (
                 <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">
                         Chọn vai trò mới cho quản lý cũ
@@ -275,7 +288,7 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
                     >
                         <option value="">-- Chọn vai trò --</option>
                         {Object.keys(roles)
-                            .filter((key) => key !== "Branch_Manager")
+                            .filter((key) => key !== "Branch_Manager" && key !== "Head_Office")
                             .map((key) => (
                                 <option key={key} value={key}>
                                     {roles[key as keyof typeof roles].label}
@@ -283,6 +296,7 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
                             ))}
                     </select>
                 </div>
+                )}
 
                 {error && (
                     <div className="text-red-500 text-sm mb-2">{error}</div>
@@ -300,7 +314,7 @@ const ModalChangeBranchManager: React.FC<ModalChangeBranchManagerProps> = ({
                         onClick={handleChangeManager}
                         disabled={
                             loading ||
-                            !oldManagerNewRole ||
+                            (changeType == "update" && !oldManagerNewRole) ||
                             (selectionType === "internal" &&
                                 !selectedManagerId) ||
                             (selectionType === "external" &&

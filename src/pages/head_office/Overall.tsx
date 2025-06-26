@@ -14,6 +14,7 @@ import {
     getBranches,
     getOverallMonthlyRevenue,
     getTotalActiveEmployees,
+    _getBranches,
 } from "../../services/head-office";
 import { useAuth } from "../../contexts/AuthContext";
 import LogoutButton from "../../components/LogoutButton";
@@ -88,7 +89,7 @@ const RevenueSum: React.FC = () => {
     const [monthOrderCounts, setMonthOrderCounts] = useState<number[]>([]);
     // Lấy danh sách chi nhánh khi mount
     useEffect(() => {
-        getBranches()
+        _getBranches()
             .then((res) => {
                 setBranches(res.data.data);
                 if (res.data.data.length > 0) {

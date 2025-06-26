@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
-    getBranches,
+    _getBranches,
     getDiscounts,
     updateDiscountActiveStatus,
     updateDiscountThreshold,
@@ -39,7 +39,7 @@ const DiscountPage: React.FC = () => {
     const [editThreshold, setEditThreshold] = useState<number>(0);
 
     useEffect(() => {
-        getBranches().then((res) => {
+        _getBranches().then((res) => {
             setBranches(res.data.data || []);
         });
     }, []);
