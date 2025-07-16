@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   getItemsCurrentlyBeingSold,
   getCategoriesCurrentlyBeingSold,
-  getBranches,
   createDiscount,
+  _getBranches,
 } from "../services/head-office";
 import type { MenuItem } from "../utils/MenuItem";
 import { toast } from '../toast';
@@ -46,7 +46,7 @@ const ModalAddDiscount: React.FC<ModalAddDiscountProps> = ({ open, onClose, onSu
 
   useEffect(() => {
     if (!open) return;
-    getBranches().then((res) => setBranches(res.data.data || []));
+    _getBranches("Active").then((res) => setBranches(res.data.data || []));
   }, [open]);
 
   useEffect(() => {

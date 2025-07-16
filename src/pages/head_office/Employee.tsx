@@ -187,19 +187,29 @@ const HeadOfficeEmployeePage: React.FC = () => {
                                                     setReason("");
                                                 } else {
                                                     // Chuyển sang Active không cần lý do
-                                                    changeEmployeeStatus(Number(employee.id), true, '').then(() => {
+                                                    changeEmployeeStatus(Number(employee.id), true, '').then((res) => {
                                                         setLoading(true);
                                                         getEmployeesByBranch(branchId, employeeFilter, page, pageSize)
-                                                            .then((res) => {
-                                                                setEmployees(res.data.data || []);
-                                                                setTotalPages(res.data.totalPages || 1);
+                                                            .then((res2) => {
+                                                                setEmployees(res2.data.data || []);
+                                                                setTotalPages(res2.data.totalPages || 1);
                                                             })
                                                             .finally(() => setLoading(false));
+                                                        toast.info(res.data?.message || "Cập nhật thành công");
                                                     });
                                                 }
                                             }}
                                         >
                                             {String(employee.status ?? "")}
+                                            {employee.status === "Inactive" && Boolean(employee.inactiveReason) && (
+                                                <span
+                                                    className="ml-2 cursor-pointer"
+                                                    title={String(employee.inactiveReason)}
+                                                    style={{ verticalAlign: 'middle', textDecoration: 'none' }}
+                                                >
+                                                    👁️
+                                                </span>
+                                            )}
                                         </span>
                                     </td>
                                     <td className="p-2 text-black">

@@ -25,9 +25,11 @@ const getBranches = async (status: string, page: number, size: number) => {
     }
 };
 
-const _getBranches = async () => {
+const _getBranches = async (status: string) => {
     try {
-        const result = await headOffice(`/get-branches`, {
+        const queryParams = status
+            ? `?status=${encodeURIComponent(status)}` : "";
+        const result = await headOffice(`/get-branches${queryParams}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
